@@ -1,17 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "mcpServers": {
-    "n8n-mcp": {
-      "command": "node",
-      "args": [
-        "/home/user/cookers-delight/ai-frameworks/n8n-mcp/dist/index.js"
-      ],
-      "env": {
-        "MCP_MODE": "stdio",
-        "N8N_ENFORCE_SETTINGS_SCHEMA": "false"
-      }
-    }
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -19,8 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[cookers-delight] Pre-bash check running'",
-            "description": "Project-level pre-bash guard"
+            "command": "echo '[cookers-delight] Pre-bash check running'"
           }
         ]
       }

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "node",
+      "args": [
+        "/home/user/cookers-delight/ai-frameworks/n8n-mcp/dist/index.js"
+      ],
+      "env": {
+        "MCP_MODE": "stdio",
+        "N8N_ENFORCE_SETTINGS_SCHEMA": "false"
+      }
+    }
+  }
+}
