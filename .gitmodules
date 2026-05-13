@@ -1,0 +1,18 @@
+[submodule "ai-frameworks/superpowers"]
+	path = ai-frameworks/superpowers
+	url = https://github.com/obra/superpowers.git
+[submodule "ai-frameworks/everything-claude-code"]
+	path = ai-frameworks/everything-claude-code
+	url = https://github.com/affaan-m/everything-claude-code.git
+[submodule "ai-frameworks/ui-ux-pro-max-skill"]
+	path = ai-frameworks/ui-ux-pro-max-skill
+	url = https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
+[submodule "ai-frameworks/browser-use"]
+	path = ai-frameworks/browser-use
+	url = https://github.com/browser-use/browser-use.git
+[submodule "ai-frameworks/claude-mem"]
+	path = ai-frameworks/claude-mem
+	url = https://github.com/thedotmack/claude-mem.git
+[submodule "ai-frameworks/n8n-mcp"]
+	path = ai-frameworks/n8n-mcp
+	url = https://github.com/czlonkowski/n8n-mcp.git

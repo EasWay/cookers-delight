@@ -6,3 +6,12 @@ server/.env
 server/node_modules/
 server/uploads/*
 !server/uploads/.gitkeep
+
+# AI frameworks - node_modules and Python caches
+ai-frameworks/*/node_modules/
+ai-frameworks/*/__pycache__/
+ai-frameworks/*/.venv/
+ai-frameworks/*/dist/
+ai-frameworks/everything-claude-code/dist/
+ai-frameworks/n8n-mcp/node_modules/
+ai-frameworks/browser-use/*.egg-info/
