@@ -68,7 +68,7 @@ export default function Footer() {
                 href="https://wa.me/233243379412"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] transition-all"
+                className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] transition-all"
               >
                 <BsWhatsapp size={16} />
               </a>
@@ -125,19 +125,21 @@ export default function Footer() {
               Join for weekly specials and new dish alerts.
             </p>
             <form onSubmit={subscribe} className="space-y-2">
+              <label htmlFor="newsletter-email" className="block text-xs font-bold text-white/40 uppercase tracking-widest">Your email address</label>
               <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 focus-within:border-[#1B5E20] transition-colors">
                 <input
+                  id="newsletter-email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   type="email"
-                  placeholder="Your email"
+                  placeholder="your@email.com"
                   className="bg-transparent flex-1 px-4 py-2.5 outline-none text-sm text-white placeholder:text-white/30"
                 />
                 <button
                   type="submit"
                   className="bg-[#1B5E20] hover:bg-[#2D6A4F] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-colors"
                 >
-                  Join
+                  Subscribe
                 </button>
               </div>
             </form>
