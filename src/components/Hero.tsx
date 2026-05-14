@@ -34,12 +34,12 @@ export function Hero() {
             >
               Order Online
             </Link>
-            <Link
-              to="/menu"
+            <a
+              href="#menu"
               className="min-h-[56px] flex items-center justify-center bg-transparent text-white border border-white/30 px-10 py-4 font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
             >
               View Menu
-            </Link>
+            </a>
           </div>
         </motion.div>
 

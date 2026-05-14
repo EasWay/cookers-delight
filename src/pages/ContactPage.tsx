@@ -11,15 +11,23 @@ const formatImg = (src: string, w: number) => src;
 const ContactPage = () => {
   const { addToast } = usePageContext();
   const [config] = useState({ phone: '+233243379412', whatsapp: '233243379412' });
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'blocked'>('idle');
+  const [whatsappUrl, setWhatsappUrl] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addToast("Message sent! Opening WhatsApp... ✓");
-    setTimeout(() => {
-      const formData = new FormData(e.target as HTMLFormElement);
-      const message = `Hello! New Contact Request:\nName: ${formData.get('name')}\nEmail: ${formData.get('email')}\nMessage: ${formData.get('message')}`;
-      window.open(`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(message)}`);
-    }, 1000);
+    setSubmitStatus('idle');
+    const formData = new FormData(e.target as HTMLFormElement);
+    const message = `Hello! New Contact Request:\nName: ${formData.get('name')}\nEmail: ${formData.get('email')}\nMessage: ${formData.get('message')}`;
+    const url = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(message)}`;
+    const popup = window.open(url, '_blank');
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      setWhatsappUrl(url);
+      setSubmitStatus('blocked');
+    } else {
+      addToast('Opening WhatsApp... ✓');
+      setSubmitStatus('success');
+    }
   };
 
   return (
@@ -68,6 +76,17 @@ const ContactPage = () => {
                    <textarea required name="message" rows={5} className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none resize-none" placeholder="How can we help?"></textarea>
                 </div>
                 <button type="submit" className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all">Send Message</button>
+                {submitStatus === 'blocked' && (
+                  <p className="text-yellow-400 text-sm text-center">
+                    Popup was blocked.{' '}
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="underline text-brand-orange">
+                      Open WhatsApp manually
+                    </a>
+                  </p>
+                )}
+                {submitStatus === 'success' && (
+                  <p className="text-green-400 text-sm text-center">Message sent! We'll respond shortly.</p>
+                )}
              </form>
           </div>
         </div>

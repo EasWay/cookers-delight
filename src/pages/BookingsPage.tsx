@@ -63,6 +63,8 @@ export default function BookingsPage() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [slotError, setSlotError] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
   // ── Fetch time slots whenever date, guests, or location changes ────────────
   useEffect(() => {
@@ -110,11 +112,13 @@ export default function BookingsPage() {
   // ── Submit ────────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
 
     if (!form.reserve_time) {
-      addToast('Please select a time slot.');
+      setSlotError('Please select a time slot before confirming.');
       return;
     }
+    setSlotError('');
 
     setSubmitting(true);
     try {
@@ -132,7 +136,7 @@ export default function BookingsPage() {
       setSuccess(true);
       addToast('Reservation confirmed! See you soon. ✓');
     } catch {
-      addToast('Something went wrong. Please try again or call us directly.');
+      setSubmitError('Something went wrong. Please try again or call us directly.');
     } finally {
       setSubmitting(false);
     }
@@ -268,7 +272,7 @@ export default function BookingsPage() {
               </div>
 
               {/* ── Row 2: Email & Phone ── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <div>
                   <label className={labelClass}>
                     <HiEnvelope className="inline mr-1" size={12} />
@@ -304,7 +308,7 @@ export default function BookingsPage() {
                 <p className="text-brand-orange text-xs font-bold uppercase tracking-widest mb-5 flex items-center gap-2">
                   <HiCalendarDays size={14} /> Booking Details
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="space-y-6">
                   <div>
                     <label className={labelClass}>Date</label>
                     <input
@@ -316,39 +320,41 @@ export default function BookingsPage() {
                       className={inputClass}
                     />
                   </div>
-                  <div>
-                    <label className={labelClass}>
-                      <HiUsers className="inline mr-1" size={12} />
-                      Guests
-                    </label>
-                    <select
-                      value={form.guest_num}
-                      onChange={e => set('guest_num', Number(e.target.value))}
-                      className={inputClass}
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                        <option key={n} value={n} className="bg-black">
-                          {n} {n === 1 ? 'Guest' : 'Guests'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>
-                      <HiMapPin className="inline mr-1" size={12} />
-                      Branch Location
-                    </label>
-                    <select
-                      value={form.location_id}
-                      onChange={e => set('location_id', Number(e.target.value))}
-                      className={inputClass}
-                    >
-                      {BRANCHES.map(b => (
-                        <option key={b.id} value={b.id} className="bg-black">
-                          {b.name}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className={labelClass}>
+                        <HiUsers className="inline mr-1" size={12} />
+                        Guests
+                      </label>
+                      <select
+                        value={form.guest_num}
+                        onChange={e => set('guest_num', Number(e.target.value))}
+                        className={inputClass}
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                          <option key={n} value={n} className="bg-black">
+                            {n} {n === 1 ? 'Guest' : 'Guests'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>
+                        <HiMapPin className="inline mr-1" size={12} />
+                        Branch Location
+                      </label>
+                      <select
+                        value={form.location_id}
+                        onChange={e => set('location_id', Number(e.target.value))}
+                        className={inputClass}
+                      >
+                        {BRANCHES.map(b => (
+                          <option key={b.id} value={b.id} className="bg-black">
+                            {b.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -374,7 +380,7 @@ export default function BookingsPage() {
                       <button
                         key={slot}
                         type="button"
-                        onClick={() => set('reserve_time', slot)}
+                        onClick={() => { set('reserve_time', slot); setSlotError(''); }}
                         className={`px-5 py-3 min-h-[44px] rounded-xl text-sm font-bold border transition-all ${
                           form.reserve_time === slot
                             ? 'bg-brand-orange border-brand-orange text-white'
@@ -385,6 +391,9 @@ export default function BookingsPage() {
                       </button>
                     ))}
                   </div>
+                )}
+                {slotError && (
+                  <p className="text-red-400 text-sm mt-3">{slotError}</p>
                 )}
               </div>
 
@@ -404,6 +413,9 @@ export default function BookingsPage() {
               </div>
 
               {/* ── Submit ── */}
+              {submitError && (
+                <p className="text-red-400 text-sm text-center">{submitError}</p>
+              )}
               <motion.button
                 type="submit"
                 disabled={submitting}

@@ -77,7 +77,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       <div className={`relative w-full ${widths[size]} bg-[#111] border border-white/10 rounded-2xl shadow-2xl`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
           <h3 className="font-bold text-lg">{title}</h3>
-          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors">
             <HiXMark size={20} />
           </button>
         </div>
