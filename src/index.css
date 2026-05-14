@@ -2,6 +2,20 @@
 
 @import "tailwindcss";
 
+:root {
+  --cd-green: #1B5E20;
+  --cd-green-mid: #2D6A4F;
+  --cd-green-light: #DCFCE7;
+  --cd-green-dark: #14532D;
+  --cd-amber: #D97706;
+  --cd-bg: #FFFBF7;
+  --cd-bg-alt: #F5EFE8;
+  --cd-text: #1C1917;
+  --cd-muted: #78716C;
+  --cd-border: #E8E0D8;
+  --bottom-nav-height: 64px;
+}
+
 @theme {
   /* Original brand palette (kept for admin dark theme) */
   --color-brand-burgundy: #872735;
