@@ -5,6 +5,7 @@ import { BsWhatsapp } from 'react-icons/bs';
 import { HiArrowUp } from 'react-icons/hi2';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import BottomNav from '../components/BottomNav';
 import AnnouncementBar from '../components/AnnouncementBar';
 import Toast, { type ToastMessage } from '../components/Toast';
 import PWAUpdateBanner from '../components/PWAUpdateBanner';
@@ -30,7 +31,7 @@ export default function PublicLayout() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
+    const timer = setTimeout(() => setLoading(false), 800);
     const onScroll = () => setShowScrollTop(window.scrollY > 500);
     window.addEventListener('scroll', onScroll);
     return () => { clearTimeout(timer); window.removeEventListener('scroll', onScroll); };
@@ -50,7 +51,7 @@ export default function PublicLayout() {
 
   return (
     <PageContext.Provider value={{ navigate, addToast }}>
-      <div className="min-h-screen bg-[#FFFBF7] text-[#1C1917] selection:bg-[#DCFCE7]">
+      <div className="min-h-screen bg-[#FFFBF7] text-[#1C1917] selection:bg-[#DCFCE7] pb-[var(--bottom-nav-height)] md:pb-0">
         <PWAUpdateBanner />
         <AnnouncementBar />
 
@@ -92,9 +93,10 @@ export default function PublicLayout() {
               <Navbar />
               <Outlet />
               <Footer />
+              <BottomNav />
 
-              {/* Floating actions */}
-              <div className="fixed bottom-32 lg:bottom-10 right-8 z-[60] flex flex-col gap-4">
+              {/* Floating actions — positioned above bottom nav on mobile */}
+              <div className="fixed bottom-[calc(var(--bottom-nav-height)+1.5rem)] lg:bottom-10 right-8 z-[60] flex flex-col gap-4">
                 <AnimatePresence>
                   {showScrollTop && (
                     <motion.button

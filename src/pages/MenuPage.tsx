@@ -139,8 +139,8 @@ export default function MenuPage() {
             />
           </div>
 
-          {/* Category pills — scroll on mobile */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
+          {/* Category pills — desktop only; mobile has its own row below the hero */}
+          <div className="hidden sm:flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -172,18 +172,53 @@ export default function MenuPage() {
         </div>
       </div>
 
+      {/* ── Mobile category pills (full-width scrollable row) ────────────── */}
+      <div className="sm:hidden bg-white border-b border-[#E8E0D8]">
+        <div className="px-4 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`flex-shrink-0 min-h-[36px] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                activeCategory === cat
+                  ? 'bg-[#1B5E20] text-white shadow-sm'
+                  : 'bg-[#F5EFE8] text-[#78716C] active:bg-[#DCFCE7]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ── Menu grid ─────────────────────────────────────────────────────── */}
       <section className="py-12 bg-[#FFFBF7]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           {loading && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="warm-card h-80 animate-pulse">
-                  <div className="h-44 bg-[#F5EFE8] rounded-t-[1.25rem]" />
-                  <div className="p-4 space-y-2">
-                    <div className="h-3 bg-[#F5EFE8] rounded-full w-1/2" />
-                    <div className="h-4 bg-[#F5EFE8] rounded-full w-3/4" />
-                    <div className="h-3 bg-[#F5EFE8] rounded-full w-full" />
+                <div key={i} className="warm-card overflow-hidden animate-pulse">
+                  {/* Image placeholder */}
+                  <div className="h-44 bg-[#F0EBE4] rounded-t-[1.25rem]" />
+                  <div className="p-4 space-y-3">
+                    {/* Star row */}
+                    <div className="flex gap-1">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <div key={j} className="w-3 h-3 rounded-full bg-[#F0EBE4]" />
+                      ))}
+                    </div>
+                    {/* Title */}
+                    <div className="h-4 bg-[#F0EBE4] rounded-full w-3/4" />
+                    {/* Description lines */}
+                    <div className="space-y-1.5">
+                      <div className="h-3 bg-[#F0EBE4] rounded-full w-full" />
+                      <div className="h-3 bg-[#F0EBE4] rounded-full w-4/5" />
+                    </div>
+                    {/* Price + button row */}
+                    <div className="flex items-center justify-between pt-2 border-t border-[#F5EFE8]">
+                      <div className="h-7 w-20 bg-[#F0EBE4] rounded-full" />
+                      <div className="h-8 w-16 bg-[#F0EBE4] rounded-full" />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -294,6 +329,35 @@ export default function MenuPage() {
           )}
         </div>
       </section>
+
+      {/* ── Mobile cart bar (above bottom nav, only when cart has items) ─── */}
+      <AnimatePresence>
+        {cart.length > 0 && (
+          <motion.div
+            className="sm:hidden fixed left-0 right-0 z-[60] px-4 py-2"
+            style={{ bottom: 'calc(var(--bottom-nav-height) + 0.5rem)' }}
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          >
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="w-full bg-[#1B5E20] text-white rounded-2xl px-5 py-4 flex items-center justify-between shadow-xl active:scale-[0.98] transition-transform"
+              aria-label={`View cart: ${totalQty} items, total GH₵${total.toFixed(2)}`}
+            >
+              <span className="flex items-center gap-2 font-bold text-sm">
+                <HiOutlineShoppingBag size={20} />
+                {totalQty} item{totalQty !== 1 ? 's' : ''}
+              </span>
+              <span className="font-display text-xl font-black">GH₵{total.toFixed(2)}</span>
+              <span className="text-sm font-bold flex items-center gap-1 opacity-90">
+                Review <HiArrowRight size={14} />
+              </span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Cart drawer ──────────────────────────────────────────────────────────── */}
       <AnimatePresence>
