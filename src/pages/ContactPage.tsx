@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { BsWhatsapp, BsInstagram, BsFacebook } from 'react-icons/bs';
 import { FiPhone } from 'react-icons/fi';
 import { usePageContext } from './PublicLayout';
 import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
+import { haptic } from '../utils/haptics';
 
 // Inline image formatter (mirrors the one in App.tsx)
 const formatImg = (src: string, w: number) => src;
@@ -53,11 +55,18 @@ const ContactPage = () => {
                 { label: 'Instagram', val: '@cookersdelightgh', icon: <BsInstagram />, href: 'https://instagram.com/cookersdelightgh' },
                 { label: 'Facebook', val: 'Cookers Delight', icon: <BsFacebook />, href: 'https://facebook.com/cookersdelightgh' }
               ].map(c => (
-                <a key={c.label} href={c.href} className="bg-white/5 p-8 rounded-[40px] border border-white/5 hover:border-brand-orange/40 transition-all">
+                <motion.a
+                  key={c.label}
+                  href={c.href}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                  className="bg-white/5 p-8 rounded-[40px] border border-white/5 hover:border-brand-orange/40 transition-colors block"
+                >
                   <div className="text-brand-orange mb-6">{c.icon}</div>
                   <p className="text-white/40 uppercase text-xs font-bold tracking-widest mb-1">{c.label}</p>
                   <p className="text-xl font-bold">{c.val}</p>
-                </a>
+                </motion.a>
               ))}
             </div>
           </div>
@@ -65,17 +74,25 @@ const ContactPage = () => {
              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="space-y-3">
                    <label className="text-xs uppercase font-bold text-white/40 tracking-widest">Full Name</label>
-                   <input required name="name" type="text" className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none" placeholder="Your Name" />
+                   <input required name="name" type="text" className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none transition-colors duration-200" placeholder="Your Name" />
                 </div>
                 <div className="space-y-3">
                    <label className="text-xs uppercase font-bold text-white/40 tracking-widest">Email Address</label>
-                   <input required name="email" type="email" className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none" placeholder="you@example.com" />
+                   <input required name="email" type="email" className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none transition-colors duration-200" placeholder="you@example.com" />
                 </div>
                 <div className="space-y-3">
                    <label className="text-xs uppercase font-bold text-white/40 tracking-widest">Message</label>
-                   <textarea required name="message" rows={5} className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none resize-none" placeholder="How can we help?"></textarea>
+                   <textarea required name="message" rows={5} className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none resize-none transition-colors duration-200" placeholder="How can we help?"></textarea>
                 </div>
-                <button type="submit" className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all">Send Message</button>
+                <motion.button
+                  type="submit"
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                  onClick={() => haptic(12)}
+                  className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all"
+                >
+                  Send Message
+                </motion.button>
                 {submitStatus === 'blocked' && (
                   <p className="text-yellow-400 text-sm text-center">
                     Popup was blocked.{' '}

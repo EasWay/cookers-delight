@@ -12,7 +12,22 @@ import { formatImg } from '../utils/image';
 import { useApi } from '../hooks/useApi';
 import { menuApi } from '../lib/api';
 import { usePageContext } from './PublicLayout';
+import { haptic } from '../utils/haptics';
 import type { TIMenuItem } from '../types';
+
+// ─── Spring presets ───────────────────────────────────────────────────────────
+const springEntrance = { type: 'spring', stiffness: 350, damping: 28 } as const;
+const springHover    = { type: 'spring', stiffness: 400, damping: 22 } as const;
+
+// ─── Stagger variants ─────────────────────────────────────────────────────────
+const cardContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
+const cardItem = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 350, damping: 28 } },
+};
 
 // ─── Star rating helper ───────────────────────────────────────────────────────
 function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
@@ -34,20 +49,16 @@ function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
 function DishCard({
   item,
   onOrder,
-  delay = 0,
 }: {
   item: TIMenuItem;
   onOrder: () => void;
-  delay?: number;
 }) {
   const categoryName = item.categories?.[0]?.name ?? 'Ghanaian';
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.55 }}
-      className="warm-card group overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
+      variants={cardItem}
+      whileHover={{ y: -6, scale: 1.02, transition: springHover }}
+      className="warm-card group overflow-hidden flex flex-col"
     >
       {/* Image */}
       <div className="relative h-52 overflow-hidden rounded-t-[1.25rem]">
@@ -70,12 +81,13 @@ function DishCard({
         <p className="text-sm text-[#78716C] line-clamp-2 flex-1">
           {item.menu_description || 'A classic West African dish prepared with the freshest local ingredients.'}
         </p>
-        <button
+        <motion.button
           onClick={onOrder}
+          whileTap={{ scale: 0.98 }}
           className="warm-btn-primary justify-center text-sm mt-1"
         >
           Order Now <HiArrowRight size={16} />
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );
@@ -87,7 +99,7 @@ export default function HomePage() {
   const [heroSlide, setHeroSlide] = useState(0);
 
   const { data: menuItems } = useApi<TIMenuItem[]>(() => menuApi.getItems());
-  const featured = (menuItems ?? []).slice(0, 3);
+  const featured = (menuItems ?? []).slice(0, 4);
 
   const years    = useCountUp(10);
   const branches = useCountUp(4);
@@ -115,8 +127,9 @@ export default function HomePage() {
         description="Order authentic Ghanaian and Nigerian food from Cookers Delight. Fast delivery across Accra. Dine in, take away, or order online. Great Foods. Great People."
         canonical="https://cookers-delight.vercel.app/"
       />
+
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="min-h-screen bg-[#FFFBF7] pt-20 flex items-center overflow-hidden relative">
+      <section className="min-h-[100dvh] bg-[#FFFBF7] pt-20 flex items-center overflow-hidden relative">
         {/* Decorative background blobs */}
         <div className="absolute top-24 right-0 w-[480px] h-[480px] rounded-full bg-[#DCFCE7] opacity-50 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[320px] h-[320px] rounded-full bg-[#FEF3C7] opacity-40 blur-3xl pointer-events-none" />
@@ -126,7 +139,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.75, delay: 0.1 }}
+            transition={{ ...springEntrance, delay: 0.1 }}
             className="space-y-7 relative z-10"
           >
             <span className="warm-section-label">Ghana's Favourite Restaurant</span>
@@ -160,12 +173,20 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <button onClick={goMenu} className="warm-btn-primary text-sm px-7 py-3.5">
+              <motion.button
+                onClick={() => { haptic(10); goMenu(); }}
+                whileTap={{ scale: 0.97 }}
+                className="warm-btn-primary text-sm px-7 py-3.5"
+              >
                 Explore Menu <HiArrowRight size={16} />
-              </button>
-              <button onClick={goBook} className="warm-btn-outline text-sm px-7 py-3.5">
+              </motion.button>
+              <motion.button
+                onClick={() => { haptic(8); goBook(); }}
+                whileTap={{ scale: 0.97 }}
+                className="warm-btn-outline text-sm px-7 py-3.5"
+              >
                 Reserve a Table
-              </button>
+              </motion.button>
             </div>
           </motion.div>
 
@@ -173,7 +194,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.3 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 30, delay: 0.2 }}
             className="relative flex justify-center items-center lg:justify-end"
           >
             {/* Main circle */}
@@ -197,7 +218,7 @@ export default function HomePage() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.9 }}
+                transition={{ ...springEntrance, delay: 0.9 }}
                 className="absolute -top-4 -right-4 bg-[#FEF3C7] border-2 border-white rounded-2xl px-5 py-3 shadow-lg"
               >
                 <p className="text-xs font-bold text-[#78716C] uppercase tracking-wider">Chef's Pick</p>
@@ -208,7 +229,7 @@ export default function HomePage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1 }}
+                transition={{ ...springEntrance, delay: 1.1 }}
                 className="absolute -bottom-6 -left-6 bg-white rounded-2xl px-5 py-4 shadow-xl border border-[#E8E0D8] max-w-[200px]"
               >
                 <StarRating rating={4.8} />
@@ -220,7 +241,7 @@ export default function HomePage() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.3 }}
+                transition={{ ...springEntrance, delay: 1.3 }}
                 className="absolute top-1/2 -right-8 -translate-y-1/2 bg-[#1B5E20] rounded-2xl px-4 py-3 shadow-xl text-white text-center hidden lg:block"
               >
                 <HiRocketLaunch size={18} className="mx-auto mb-1" />
@@ -241,22 +262,22 @@ export default function HomePage() {
             </div>
           </motion.div>
         </div>
+      </section>
 
-        {/* Stats strip */}
-        <div className="absolute bottom-0 left-0 w-full bg-white border-t border-[#E8E0D8]">
-          <div className="max-w-7xl mx-auto px-6 py-5 flex flex-nowrap overflow-x-auto no-scrollbar lg:overflow-visible lg:justify-around items-center gap-10">
-            {[
-              { label: 'Years Serving', val: years.count, ref: years.ref, suffix: '+' },
-              { label: 'Branches',      val: branches.count, ref: branches.ref, suffix: '' },
-              { label: 'Happy Reviews', val: reviews.count, ref: reviews.ref, suffix: '+' },
-              { label: 'Unique Dishes', val: dishes.count,  ref: dishes.ref,  suffix: '+' },
-            ].map((stat, i) => (
-              <div key={i} ref={stat.ref} className="flex flex-col items-center min-w-[130px]">
-                <span className="text-3xl font-display font-black text-[#1B5E20]">{stat.val}{stat.suffix}</span>
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#78716C]">{stat.label}</span>
-              </div>
-            ))}
-          </div>
+      {/* ── STATS STRIP ────────────────────────────────────────────────────── */}
+      <section className="relative z-10 bg-white border-t border-[#E8E0D8]">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-nowrap overflow-x-auto no-scrollbar lg:overflow-visible lg:justify-around items-center gap-10">
+          {[
+            { label: 'Years Serving', val: years.count,    ref: years.ref,    suffix: '+' },
+            { label: 'Branches',      val: branches.count, ref: branches.ref, suffix: '' },
+            { label: 'Happy Reviews', val: reviews.count,  ref: reviews.ref,  suffix: '+' },
+            { label: 'Unique Dishes', val: dishes.count,   ref: dishes.ref,   suffix: '+' },
+          ].map((stat, i) => (
+            <div key={i} ref={stat.ref} className="flex flex-col items-center min-w-[130px]">
+              <span className="text-3xl font-display font-black text-[#1B5E20]">{stat.val}{stat.suffix}</span>
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#78716C]">{stat.label}</span>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -270,22 +291,30 @@ export default function HomePage() {
                 Featured<br /><span className="text-[#1B5E20] italic font-normal">Delicacies.</span>
               </h2>
             </div>
-            <button
+            <motion.button
               onClick={goMenu}
+              whileTap={{ scale: 0.97 }}
               className="warm-btn-outline text-sm px-7 py-3"
             >
               View Full Menu <HiArrowRight size={16} />
-            </button>
+            </motion.button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div
+            variants={cardContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          >
             {featured.length > 0
-              ? featured.map((item, i) => (
-                  <DishCard key={item.menu_id} item={item} onOrder={goMenu} delay={i * 0.1} />
+              ? featured.map((item) => (
+                  <DishCard key={item.menu_id} item={item} onOrder={goMenu} />
                 ))
-              : /* Skeleton placeholders */ Array.from({ length: 3 }).map((_, i) => (
-                  <div
+              : /* Skeleton placeholders */ Array.from({ length: 4 }).map((_, i) => (
+                  <motion.div
                     key={i}
+                    variants={cardItem}
                     className="warm-card h-[420px] animate-pulse"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   >
@@ -296,10 +325,10 @@ export default function HomePage() {
                       <div className="h-3 bg-[#F5EFE8] rounded-full w-full" />
                       <div className="h-3 bg-[#F5EFE8] rounded-full w-5/6" />
                     </div>
-                  </div>
+                  </motion.div>
                 ))
             }
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -313,28 +342,33 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-0">
             {[
-              { icon: <HiRocketLaunch size={28} />, title: 'Fast Delivery',     desc: 'Hot food at your door in 30–45 mins' },
-              { icon: <HiSparkles size={28} />,     title: 'Fresh Ingredients', desc: 'Sourced daily from local markets' },
-              { icon: <HiUsers size={28} />,        title: 'Expert Chefs',      desc: '10+ years of West African culinary mastery' },
-              { icon: <BsWhatsapp size={28} />,     title: 'Easy Ordering',     desc: "One WhatsApp message and you're done" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-2xl p-8 border border-[#E8E0D8] hover:border-[#1B5E20]/30 hover:shadow-lg transition-all group"
-              >
-                <div className="w-14 h-14 rounded-xl bg-[#DCFCE7] flex items-center justify-center text-[#1B5E20] mb-6 group-hover:scale-110 transition-transform">
-                  {item.icon}
-                </div>
-                <h4 className="font-display text-xl font-bold text-[#1C1917] mb-2">{item.title}</h4>
-                <p className="text-sm text-[#78716C] leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
+              { icon: <HiRocketLaunch size={48} />, title: 'Fast Delivery',     desc: 'Hot food at your door in 30–45 mins' },
+              { icon: <HiSparkles size={48} />,     title: 'Fresh Ingredients', desc: 'Sourced daily from local markets' },
+              { icon: <HiUsers size={48} />,        title: 'Expert Chefs',      desc: '10+ years of West African culinary mastery' },
+              { icon: <BsWhatsapp size={48} />,     title: 'Easy Ordering',     desc: "One WhatsApp message and you're done" },
+            ].map((item, i) => {
+              const isOdd = i % 2 !== 0;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ ...springEntrance, delay: i * 0.08 }}
+                  className={`grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8 items-center border-b border-[#E8E0D8] py-10 ${isOdd ? 'md:[direction:rtl]' : ''}`}
+                >
+                  <div className={`flex items-center justify-center md:justify-start text-[#1B5E20] ${isOdd ? 'md:[direction:ltr]' : ''}`}>
+                    {item.icon}
+                  </div>
+                  <div className={isOdd ? 'md:[direction:ltr]' : ''}>
+                    <h4 className="font-display text-2xl font-bold text-[#1C1917] mb-2">{item.title}</h4>
+                    <p className="text-base text-[#78716C] leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -346,6 +380,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={springEntrance}
             className="space-y-8"
           >
             <span className="warm-section-label block">Our Story</span>
@@ -356,12 +391,20 @@ export default function HomePage() {
               Cookers Delight is more than a restaurant — it's a celebration of West African culinary mastery. From our humble beginnings in Accra, we've remained dedicated to one mission: bringing you the soul of Ghana and Nigeria on a plate.
             </p>
             <div className="flex items-center gap-5 pt-2">
-              <button onClick={goMenu} className="warm-btn-primary text-sm px-7 py-3.5">
+              <motion.button
+                onClick={goMenu}
+                whileTap={{ scale: 0.97 }}
+                className="warm-btn-primary text-sm px-7 py-3.5"
+              >
                 View Full Menu <HiArrowRight size={16} />
-              </button>
-              <button onClick={goBook} className="warm-btn-outline text-sm px-7 py-3.5">
+              </motion.button>
+              <motion.button
+                onClick={goBook}
+                whileTap={{ scale: 0.97 }}
+                className="warm-btn-outline text-sm px-7 py-3.5"
+              >
                 Make a Reservation
-              </button>
+              </motion.button>
             </div>
           </motion.div>
 
@@ -369,6 +412,8 @@ export default function HomePage() {
             initial={{ opacity: 0, scale: 0.96 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            transition={springEntrance}
+            whileHover={{ scale: 1.02, transition: springHover }}
             className="relative"
           >
             <div className="rounded-3xl overflow-hidden shadow-2xl h-[520px] border-4 border-white">
@@ -397,27 +442,29 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#1B5E20]/80 to-[#1C1917]/90" />
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center text-white">
           <span className="warm-section-label text-[#DCFCE7] block mb-4">Catering Services</span>
-          <h2 className="font-display text-5xl md:text-7xl font-bold mb-6">
+          <h2 className="font-display text-6xl md:text-8xl lg:text-[9rem] font-bold mb-6 leading-[0.85]">
             We Cater for<br /><span className="text-[#F59E0B] italic font-normal">Your Events</span>
           </h2>
           <p className="text-white/80 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
             Corporate events, weddings, funerals, parties — we bring the feast to you across Greater Accra.
           </p>
           <div className="flex flex-wrap justify-center gap-5">
-            <a
+            <motion.a
               href="https://wa.me/233243379412?text=Hi, I'd like a catering quote"
               target="_blank"
               rel="noopener noreferrer"
+              whileTap={{ scale: 0.97 }}
               className="bg-[#F59E0B] text-[#1C1917] font-black px-9 py-4 rounded-full hover:bg-[#FCD34D] transition-all flex items-center gap-2"
             >
               <BsWhatsapp size={20} /> Get a Quote on WhatsApp
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="tel:+233243379412"
+              whileTap={{ scale: 0.97 }}
               className="border-2 border-white/40 text-white font-bold px-9 py-4 rounded-full hover:bg-white/10 transition-all"
             >
               Call Us Now
-            </a>
+            </motion.a>
           </div>
         </div>
       </section>
@@ -429,31 +476,37 @@ export default function HomePage() {
           <h2 className="font-display text-4xl font-bold text-[#1C1917] mb-8">
             Follow Us on Social Media
           </h2>
-          <div className="flex justify-center gap-5">
-            <a
+          <div className="flex justify-center gap-5 flex-wrap">
+            <motion.a
               href="https://www.instagram.com/cookersdelightgh/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-white border border-[#E8E0D8] text-[#1C1917] px-7 py-3.5 rounded-full font-bold hover:border-[#1B5E20] hover:text-[#1B5E20] transition-all"
+              whileHover={{ y: -3, transition: springHover }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 bg-white border border-[#E8E0D8] text-[#1C1917] px-7 py-3.5 rounded-full font-bold hover:border-[#1B5E20] hover:text-[#1B5E20] transition-colors"
             >
               <BsInstagram size={18} /> Instagram
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="https://www.facebook.com/cookersdelightgh/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-white border border-[#E8E0D8] text-[#1C1917] px-7 py-3.5 rounded-full font-bold hover:border-[#1B5E20] hover:text-[#1B5E20] transition-all"
+              whileHover={{ y: -3, transition: springHover }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 bg-white border border-[#E8E0D8] text-[#1C1917] px-7 py-3.5 rounded-full font-bold hover:border-[#1B5E20] hover:text-[#1B5E20] transition-colors"
             >
               <BsFacebook size={18} /> Facebook
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="https://wa.me/233243379412"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#25D366] text-white px-7 py-3.5 rounded-full font-bold hover:bg-[#1DAA55] transition-all"
+              whileHover={{ y: -3, transition: springHover }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 bg-[#25D366] text-white px-7 py-3.5 rounded-full font-bold hover:bg-[#1DAA55] transition-colors"
             >
               <BsWhatsapp size={18} /> WhatsApp
-            </a>
+            </motion.a>
           </div>
         </div>
       </section>
@@ -464,7 +517,7 @@ export default function HomePage() {
       <div className="bg-[#1B5E20] py-4 overflow-hidden">
         <div className="animate-marquee-scroll whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
-            <span key={i} className="text-3xl md:text-5xl font-display font-bold text-white/10 uppercase mx-10">
+            <span key={i} className="text-4xl md:text-6xl font-display font-bold text-white/10 uppercase mx-10">
               Ghana's Best Jollof • Authentic Nigerian Soups • Professional Catering • Hot Delivery
             </span>
           ))}

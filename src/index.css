@@ -14,6 +14,16 @@
   --cd-muted: #78716C;
   --cd-border: #E8E0D8;
   --bottom-nav-height: 64px;
+
+  /* Easing curves — spring-like cubic-beziers for CSS transitions */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* Duration scale */
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
 }
 
 @theme {
@@ -111,16 +121,21 @@
   }
 
   /* Warm public-site utilities */
+  /* Double-bezel card: outer ring + inner highlight */
   .warm-card {
     background: #FFFFFF;
     border: 1px solid #E8E0D8;
     border-radius: 1.25rem;
-    box-shadow: 0 2px 16px rgba(100, 70, 40, 0.07);
+    box-shadow: 0 2px 16px rgba(100, 70, 40, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   .warm-card:hover {
-    box-shadow: 0 8px 32px rgba(100, 70, 40, 0.13);
-    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(100, 70, 40, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: translateY(-4px) scale(1.01);
+    transition: transform var(--dur-base) var(--ease-spring),
+                box-shadow var(--dur-base) var(--ease-out-expo);
   }
 
   .warm-pill {
@@ -151,15 +166,24 @@
     font-weight: 800;
     padding: 0.75rem 1.75rem;
     border-radius: 999px;
-    transition: background 0.2s, transform 0.15s;
+    transition: background var(--dur-base) var(--ease-out-expo),
+                transform var(--dur-fast) var(--ease-spring),
+                box-shadow var(--dur-base) var(--ease-out-expo);
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    box-shadow: 0 2px 12px rgba(27, 94, 32, 0.25);
   }
 
   .warm-btn-primary:hover {
     background: #2D6A4F;
-    transform: scale(1.03);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(27, 94, 32, 0.32);
+  }
+
+  .warm-btn-primary:active {
+    transform: scale(0.97) translateY(0);
+    box-shadow: 0 1px 6px rgba(27, 94, 32, 0.2);
   }
 
   .warm-btn-outline {
@@ -168,7 +192,9 @@
     font-weight: 800;
     padding: 0.75rem 1.75rem;
     border-radius: 999px;
-    transition: background 0.2s, color 0.2s;
+    transition: background var(--dur-base) var(--ease-out-expo),
+                color var(--dur-base) var(--ease-out-expo),
+                transform var(--dur-fast) var(--ease-spring);
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -177,6 +203,11 @@
   .warm-btn-outline:hover {
     background: #1B5E20;
     color: #FFFFFF;
+    transform: translateY(-2px);
+  }
+
+  .warm-btn-outline:active {
+    transform: scale(0.97) translateY(0);
   }
 
   .warm-section-label {

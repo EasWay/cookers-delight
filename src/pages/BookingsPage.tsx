@@ -15,6 +15,7 @@ import { reservationApi } from '../lib/api';
 import { usePageContext } from './PublicLayout';
 import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
+import { haptic } from '../utils/haptics';
 
 // ─── Static branch data (4 Cookers Delight locations) ────────────────────────
 const BRANCHES = [
@@ -146,7 +147,7 @@ export default function BookingsPage() {
   if (success) {
     return (
       <PageWrapper>
-        <section className="min-h-screen bg-brand-black flex items-center justify-center px-6">
+        <section className="min-h-[100dvh] bg-brand-black flex items-center justify-center px-6">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -420,6 +421,8 @@ export default function BookingsPage() {
                 type="submit"
                 disabled={submitting}
                 whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                onClick={() => haptic(12)}
                 className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
               >
                 {submitting ? 'Confirming Reservation…' : 'Confirm Reservation'}

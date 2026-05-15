@@ -51,7 +51,7 @@ export default function PublicLayout() {
 
   return (
     <PageContext.Provider value={{ navigate, addToast }}>
-      <div className="min-h-screen bg-[#FFFBF7] text-[#1C1917] selection:bg-[#DCFCE7] pb-[var(--bottom-nav-height)] md:pb-0">
+      <div className="min-h-[100dvh] bg-[#FFFBF7] text-[#1C1917] selection:bg-[#DCFCE7] pb-[var(--bottom-nav-height)] md:pb-0">
         <PWAUpdateBanner />
         <AnnouncementBar />
 
@@ -59,7 +59,8 @@ export default function PublicLayout() {
           {loading ? (
             <motion.div
               key="loader"
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 0, scale: 1.02 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="fixed inset-0 z-[1000] bg-[#FFFBF7] flex flex-col items-center justify-center p-10"
             >
               {/* Decorative blobs */}
@@ -67,8 +68,9 @@ export default function PublicLayout() {
               <div className="absolute bottom-16 right-16 w-56 h-56 rounded-full bg-[#FEF3C7] opacity-50 blur-3xl pointer-events-none" />
 
               <motion.div
-                initial={{ scale: 0.85, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                initial={{ scale: 0.9, opacity: 0, y: 12 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
                 className="relative text-center"
               >
                 <span className="text-4xl md:text-7xl font-display font-bold text-[#1C1917]">
@@ -103,8 +105,11 @@ export default function PublicLayout() {
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
+                      whileHover={{ y: -3, scale: 1.08 }}
+                      whileTap={{ scale: 0.92 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 28 }}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                      className="w-14 h-14 bg-white border border-[#E8E0D8] shadow-lg rounded-full flex items-center justify-center text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white transition-all"
+                      className="w-14 h-14 bg-white border border-[#E8E0D8] shadow-lg rounded-full flex items-center justify-center text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white transition-colors"
                     >
                       <HiArrowUp size={22} />
                     </motion.button>

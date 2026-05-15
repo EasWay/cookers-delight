@@ -7,6 +7,7 @@ import SEOHead from '../components/SEOHead';
 import { useApi } from '../hooks/useApi';
 import { locationApi } from '../lib/api';
 import { getImgUrl } from '../utils/image';
+import { haptic } from '../utils/haptics';
 import type { TILocation } from '../types';
 
 export default function BranchesPage() {
@@ -25,7 +26,7 @@ export default function BranchesPage() {
         <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-center">Our <span className="italic font-normal text-brand-orange">Locations</span></h1>
       </section>
 
-      <section className="py-24 bg-brand-black">
+      <section className="relative z-10 py-24 bg-brand-black">
         <div className="container mx-auto px-6">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -40,10 +41,15 @@ export default function BranchesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {locations?.map(location => (
+              {locations?.map((location, idx) => (
                 <motion.div
                   key={location.location_id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
                   whileHover={{ y: -10 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 22, delay: idx * 0.08 }}
                   className="bg-white/5 p-12 rounded-[50px] border border-white/5 flex flex-col justify-between group h-full"
                 >
                   <div>
@@ -62,18 +68,24 @@ export default function BranchesPage() {
                     </div>
                   </div>
                   <div className="flex gap-4">
-                    <a
+                    <motion.a
                       href={`tel:${location.location_telephone}`}
+                      onClick={() => haptic(8)}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                       className="bg-white/5 hover:bg-white/10 px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"
                     >
                       <FiPhone /> Call Now
-                    </a>
-                    <a
+                    </motion.a>
+                    <motion.a
                       href="https://wa.me/233243379412"
+                      onClick={() => haptic(8)}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                       className="bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"
                     >
                       <BsWhatsapp /> WhatsApp
-                    </a>
+                    </motion.a>
                   </div>
                 </motion.div>
               ))}

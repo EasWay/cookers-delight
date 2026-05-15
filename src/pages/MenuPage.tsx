@@ -11,6 +11,7 @@ import { useApi } from '../hooks/useApi';
 import { menuApi, prepTimeApi } from '../lib/api';
 import { getImgUrl } from '../utils/image';
 import { usePageContext } from './PublicLayout';
+import { haptic } from '../utils/haptics';
 import type { TIMenuItem } from '../types';
 
 interface CartItem {
@@ -79,6 +80,7 @@ export default function MenuPage() {
         quantity: 1,
       }];
     });
+    haptic(10);
     addToast(`Added ${item.menu_name} ✓`);
   };
 
@@ -142,17 +144,26 @@ export default function MenuPage() {
           {/* Category pills — desktop only; mobile has its own row below the hero */}
           <div className="hidden sm:flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
             {CATEGORIES.map(cat => (
-              <button
+              <motion.button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                onClick={() => { setActiveCategory(cat); haptic(6); }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                className={`relative flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                   activeCategory === cat
-                    ? 'bg-[#1B5E20] text-white shadow-sm'
+                    ? 'text-white shadow-sm'
                     : 'bg-[#F5EFE8] text-[#78716C] hover:bg-[#DCFCE7] hover:text-[#14532D]'
                 }`}
               >
-                {cat}
-              </button>
+                {cat === activeCategory && (
+                  <motion.span
+                    layoutId="cat-pill"
+                    className="absolute inset-0 bg-[#1B5E20] rounded-full"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">{cat}</span>
+              </motion.button>
             ))}
           </div>
 
@@ -176,17 +187,26 @@ export default function MenuPage() {
       <div className="sm:hidden bg-white border-b border-[#E8E0D8]">
         <div className="px-4 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
           {CATEGORIES.map(cat => (
-            <button
+            <motion.button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex-shrink-0 min-h-[36px] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+              onClick={() => { setActiveCategory(cat); haptic(6); }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              className={`relative flex-shrink-0 min-h-[36px] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                 activeCategory === cat
-                  ? 'bg-[#1B5E20] text-white shadow-sm'
-                  : 'bg-[#F5EFE8] text-[#78716C] active:bg-[#DCFCE7]'
+                  ? 'text-white shadow-sm'
+                  : 'bg-[#F5EFE8] text-[#78716C]'
               }`}
             >
-              {cat}
-            </button>
+              {cat === activeCategory && (
+                <motion.span
+                  layoutId="cat-pill-mobile"
+                  className="absolute inset-0 bg-[#1B5E20] rounded-full"
+                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                />
+              )}
+              <span className="relative z-10">{cat}</span>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -249,7 +269,8 @@ export default function MenuPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: (idx % 8) * 0.04 }}
+                      whileHover={{ y: -4 }}
+                      transition={{ delay: (idx % 8) * 0.04, type: 'spring', stiffness: 350, damping: 28 }}
                       className="warm-card group overflow-hidden flex flex-col"
                     >
                       {/* Image */}
@@ -304,12 +325,14 @@ export default function MenuPage() {
                               </button>
                             </div>
                           ) : (
-                            <button
+                            <motion.button
                               onClick={() => addToCart(item)}
+                              whileTap={{ scale: 0.97 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                               className="flex items-center gap-1.5 bg-[#1B5E20] text-white text-[11px] font-bold px-4 py-2 rounded-full hover:bg-[#2D6A4F] transition-all"
                             >
                               <HiPlus size={12} /> Add
-                            </button>
+                            </motion.button>
                           )}
                         </div>
                       </div>
