@@ -109,7 +109,23 @@ export default defineConfig(({mode}) => {
       },
     },
     server: {
+      host: true,
       hmr: process.env.DISABLE_HMR !== 'true',
+      allowedHosts: true,
+      // Proxy TastyIgniter REST calls through the dev server to sidestep CORS.
+      // Override the target with VITE_DEV_PROXY_TARGET in .env.local.
+      proxy: {
+        '/api': {
+          target: env.VITE_DEV_PROXY_TARGET ?? 'http://127.0.0.1:8000',
+          changeOrigin: true,
+          secure: false,
+        },
+        '/v1': {
+          target: env.VITE_DEV_PROXY_TARGET ?? 'http://127.0.0.1:8000',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
   }
 })
