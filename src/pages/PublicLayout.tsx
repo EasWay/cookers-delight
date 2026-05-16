@@ -9,6 +9,7 @@ import BottomNav from '../components/BottomNav';
 import AnnouncementBar from '../components/AnnouncementBar';
 import Toast, { type ToastMessage } from '../components/Toast';
 import PWAUpdateBanner from '../components/PWAUpdateBanner';
+import { CartProvider } from '../contexts/CartContext';
 
 // Shared page context — avoids prop-drilling navigation and toast down every page.
 interface PageContextValue {
@@ -51,6 +52,7 @@ export default function PublicLayout() {
 
   return (
     <PageContext.Provider value={{ navigate, addToast }}>
+      <CartProvider>
       <div className="min-h-[100dvh] bg-[#FFFBF7] text-[#1C1917] selection:bg-[#DCFCE7] pb-[var(--bottom-nav-height)] md:pb-0">
         <PWAUpdateBanner />
         <AnnouncementBar />
@@ -130,6 +132,7 @@ export default function PublicLayout() {
           )}
         </AnimatePresence>
       </div>
+      </CartProvider>
     </PageContext.Provider>
   );
 }

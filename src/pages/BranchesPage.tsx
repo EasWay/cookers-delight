@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { FiPhone } from 'react-icons/fi';
+import { HiChevronRight, HiMapPin, HiPhone } from 'react-icons/hi2';
 import { BsWhatsapp } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
@@ -20,73 +21,105 @@ export default function BranchesPage() {
         description="Find a Cookers Delight branch near you in Accra, Ghana. Multiple locations offering dine-in, takeaway, and delivery of authentic Ghanaian and Nigerian food."
         canonical="https://cookers-delight.vercel.app/branches"
       />
-      <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <img src={getImgUrl('/assets/forcourt2.jpg')} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent" />
-        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-center">Our <span className="italic font-normal text-brand-orange">Locations</span></h1>
+
+      {/* Mobile-first compact hero */}
+      <section className="pt-24 pb-6 md:pt-28 md:pb-12 bg-[#F5EFE8]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+          <span className="warm-section-label block mb-2 md:mb-3">Our locations</span>
+          <h1 className="font-display text-3xl sm:text-5xl md:text-7xl font-bold text-[#1C1917]">
+            Find a <span className="text-[#1B5E20] italic font-normal">branch</span>
+          </h1>
+          <p className="hidden md:block text-[#78716C] text-lg mt-4 max-w-xl">
+            Four Cookers Delight kitchens across Accra. Dine-in, takeaway, or delivery.
+          </p>
+        </div>
       </section>
 
-      <section className="relative z-10 py-24 bg-brand-black">
-        <div className="container mx-auto px-6">
+      <section className="py-6 md:py-12 bg-[#FFFBF7]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="bg-white/5 h-[400px] rounded-[50px] animate-pulse" />
+            <div className="space-y-3 md:grid md:space-y-0 md:grid-cols-2 md:gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="app-card flex items-center gap-4 p-3 animate-pulse">
+                  <div className="w-24 h-24 bg-[#F0EBE4] rounded-2xl" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-32 bg-[#F0EBE4] rounded-full" />
+                    <div className="h-3 w-48 bg-[#F0EBE4] rounded-full" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : error ? (
-            <div className="text-center py-20">
-              <p className="text-white/40">Failed to load locations</p>
-              <button onClick={refetch} className="text-brand-orange font-bold underline">Try Again</button>
+            <div className="text-center py-16">
+              <p className="text-[#78716C] mb-4">Couldn&apos;t load branches.</p>
+              <button onClick={refetch} className="warm-btn-primary text-sm px-6 py-3">Try again</button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {locations?.map((location, idx) => (
+            <div className="space-y-3 md:grid md:space-y-0 md:grid-cols-2 md:gap-6">
+              {locations?.map((loc, idx) => (
                 <motion.div
-                  key={location.location_id}
-                  initial={{ opacity: 0, y: 30 }}
+                  key={loc.location_id}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -10 }}
-                  whileTap={{ scale: 0.99 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 22, delay: idx * 0.08 }}
-                  className="bg-white/5 p-12 rounded-[50px] border border-white/5 flex flex-col justify-between group h-full"
+                  transition={{ delay: idx * 0.05, type: 'spring', stiffness: 300, damping: 28 }}
+                  className="app-card overflow-hidden"
                 >
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-5xl font-display font-bold group-hover:text-brand-orange transition-colors">{location.location_name}</h3>
-                      <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${location.location_status ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${location.location_status ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                        {location.location_status ? 'Open' : 'Closed'}
+                  <Link
+                    to={`/branches/${loc.permalink_slug ?? loc.location_id}`}
+                    onClick={() => haptic(6)}
+                    className="flex items-stretch w-full text-left"
+                  >
+                    <div className="relative w-28 sm:w-32 flex-shrink-0 bg-[#F5EFE8]">
+                      <img
+                        src={getImgUrl('/assets/forcourt2.jpg')}
+                        alt={loc.location_name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`app-status-dot ${loc.location_status ? 'app-status-dot--available' : 'app-status-dot--occupied'}`}>
+                            {loc.location_status ? 'Open' : 'Closed'}
+                          </span>
+                        </div>
+                        <h3 className="font-display text-xl font-bold text-[#1C1917] leading-tight">
+                          {loc.location_name}
+                        </h3>
+                        <p className="text-xs text-[#78716C] mt-1 flex items-center gap-1">
+                          <HiMapPin size={11} />
+                          <span className="truncate">{loc.location_address_1}{loc.location_city ? `, ${loc.location_city}` : ''}</span>
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`tel:${loc.location_telephone}`}
+                            onClick={e => { e.stopPropagation(); haptic(8); }}
+                            className="w-8 h-8 rounded-full bg-[#F5EFE8] flex items-center justify-center text-[#1C1917] active:scale-95 transition"
+                            aria-label="Call branch"
+                          >
+                            <HiPhone size={14} />
+                          </a>
+                          <a
+                            href="https://wa.me/233243379412"
+                            onClick={e => { e.stopPropagation(); haptic(8); }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-8 h-8 rounded-full bg-[#DCFCE7] flex items-center justify-center text-[#1B5E20] active:scale-95 transition"
+                            aria-label="WhatsApp branch"
+                          >
+                            <BsWhatsapp size={14} />
+                          </a>
+                        </div>
+                        <span className="w-8 h-8 rounded-full bg-[#1B5E20] text-white flex items-center justify-center">
+                          <HiChevronRight size={16} />
+                        </span>
                       </div>
                     </div>
-                    <div className="space-y-2 mb-12 text-white/40 text-lg">
-                      <p className="text-brand-orange font-bold uppercase text-xs tracking-widest mb-6">Branch Hub</p>
-                      {location.description && <p>{location.description}</p>}
-                      <p>{location.location_address_1}</p>
-                      {location.location_city && <p>{location.location_city}</p>}
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <motion.a
-                      href={`tel:${location.location_telephone}`}
-                      onClick={() => haptic(8)}
-                      whileTap={{ scale: 0.96 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                      className="bg-white/5 hover:bg-white/10 px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"
-                    >
-                      <FiPhone /> Call Now
-                    </motion.a>
-                    <motion.a
-                      href="https://wa.me/233243379412"
-                      onClick={() => haptic(8)}
-                      whileTap={{ scale: 0.96 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-                      className="bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"
-                    >
-                      <BsWhatsapp /> WhatsApp
-                    </motion.a>
-                  </div>
+                  </Link>
                 </motion.div>
               ))}
             </div>

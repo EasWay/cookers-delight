@@ -144,13 +144,13 @@ export default function HomePage() {
           >
             <span className="warm-section-label">Ghana's Favourite Restaurant</span>
 
-            <h1 className="font-display text-[72px] md:text-[96px] lg:text-[108px] leading-[0.88] font-bold text-[#1C1917]">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-[96px] lg:text-[108px] leading-[0.88] font-bold text-[#1C1917]">
               Hot &<br />
               <span className="text-[#1B5E20] italic font-normal">Tasty.</span>
             </h1>
 
-            <p className="text-[#78716C] text-lg max-w-md leading-relaxed">
-              Experience authentic Ghanaian delicacies and Nigerian specials, crafted with love and served with professional excellence.
+            <p className="text-[#78716C] text-base md:text-lg max-w-md leading-relaxed">
+              Authentic Ghanaian and Nigerian dishes, served fast across Accra.
             </p>
 
             {/* Star proof */}
@@ -264,8 +264,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS STRIP ────────────────────────────────────────────────────── */}
-      <section className="relative z-10 bg-white border-t border-[#E8E0D8]">
+      {/* ── STATS STRIP (desktop only on mobile-first redesign) ─────────── */}
+      <section className="hidden md:block relative z-10 bg-white border-t border-[#E8E0D8]">
         <div className="max-w-7xl mx-auto px-6 py-5 flex flex-nowrap overflow-x-auto no-scrollbar lg:overflow-visible lg:justify-around items-center gap-10">
           {[
             { label: 'Years Serving', val: years.count,    ref: years.ref,    suffix: '+' },
@@ -282,7 +282,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FEATURED MENU ──────────────────────────────────────────────────── */}
-      <section className="py-28 bg-[#FFFBF7]">
+      <section className="py-12 md:py-28 bg-[#FFFBF7]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6">
             <div>
@@ -332,8 +332,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── WHY CHOOSE US ──────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[#F5EFE8]">
+      {/* ── WHY CHOOSE US (desktop-only; mobile uses bottom-nav + tiles) ── */}
+      <section className="hidden md:block py-24 bg-[#F5EFE8]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-16">
             <span className="warm-section-label block mb-3">Why Cookers Delight</span>
@@ -374,7 +374,7 @@ export default function HomePage() {
       </section>
 
       {/* ── ABOUT ──────────────────────────────────────────────────────────── */}
-      <section className="py-28 bg-[#FFFBF7]">
+      <section className="py-12 md:py-28 bg-[#FFFBF7]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -432,8 +432,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CATERING CTA ──────────────────────────────────────────────────── */}
-      <section className="relative py-36 overflow-hidden">
+      {/* ── CATERING CTA (desktop-only; mobile gets a compact tile below) ─ */}
+      <section className="hidden md:block relative py-36 overflow-hidden">
         <img
           src={formatImg('/assets/flyer1.jpg', 1920)}
           className="absolute inset-0 w-full h-full object-cover opacity-20"
@@ -469,8 +469,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SOCIAL / CONNECT ──────────────────────────────────────────────── */}
-      <section className="py-20 bg-[#F5EFE8]">
+      {/* ── SOCIAL / CONNECT (desktop-only; mobile uses "More" sheet) ───── */}
+      <section className="hidden md:block py-20 bg-[#F5EFE8]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
           <span className="warm-section-label block mb-3">Stay Connected</span>
           <h2 className="font-display text-4xl font-bold text-[#1C1917] mb-8">
@@ -511,10 +511,50 @@ export default function HomePage() {
         </div>
       </section>
 
-      <CDBoatDownloadSection />
+      <div className="hidden md:block">
+        <CDBoatDownloadSection />
+      </div>
 
-      {/* ── MARQUEE ──────────────────────────────────────────────────────── */}
-      <div className="bg-[#1B5E20] py-4 overflow-hidden">
+      {/* ── Mobile-only compact catering + feedback tiles ──────────────── */}
+      <section className="md:hidden px-5 pb-10 pt-2 bg-[#FFFBF7] space-y-3">
+        <a
+          href="https://wa.me/233243379412?text=Hi, I'd like a catering quote"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => haptic(8)}
+          className="block app-tile-dark p-5 relative overflow-hidden active:scale-[0.99] transition"
+        >
+          <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#D97706]/30 blur-3xl pointer-events-none" />
+          <div className="relative flex items-center justify-between">
+            <div>
+              <span className="app-label-light">Catering</span>
+              <p className="font-display text-xl font-bold text-white mt-1 leading-tight">
+                We cater your events
+              </p>
+              <p className="text-white/60 text-xs mt-1">Tap to get a quote on WhatsApp</p>
+            </div>
+            <span className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center flex-shrink-0">
+              <BsWhatsapp size={16} />
+            </span>
+          </div>
+        </a>
+
+        <a
+          href="/feedback"
+          className="block app-card p-5 flex items-center justify-between active:scale-[0.99] transition"
+        >
+          <div>
+            <span className="warm-section-label">Feedback</span>
+            <p className="font-display text-base font-bold text-[#1C1917] mt-0.5">Tell us how we did</p>
+          </div>
+          <span className="w-10 h-10 rounded-full bg-[#1B5E20] text-white flex items-center justify-center">
+            <HiArrowRight size={16} />
+          </span>
+        </a>
+      </section>
+
+      {/* ── MARQUEE (desktop only) ───────────────────────────────────────── */}
+      <div className="hidden md:block bg-[#1B5E20] py-4 overflow-hidden">
         <div className="animate-marquee-scroll whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
             <span key={i} className="text-4xl md:text-6xl font-display font-bold text-white/10 uppercase mx-10">

@@ -7,6 +7,7 @@ import {
 } from 'react-icons/hi2';
 import { BsWhatsapp } from 'react-icons/bs';
 import { haptic } from '../utils/haptics';
+import { useCart } from '../contexts/CartContext';
 
 const PRIMARY_TABS = [
   { name: 'Home',     to: '/',          icon: HiHome },
@@ -33,6 +34,7 @@ const sheetItemVariants = {
 export default function BottomNav() {
   const { pathname } = useLocation();
   const [showMore, setShowMore] = useState(false);
+  const { totalQty } = useCart();
 
   useEffect(() => {
     setShowMore(false);
@@ -152,10 +154,17 @@ export default function BottomNav() {
                       transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                     />
                   )}
-                  <tab.icon
-                    size={22}
-                    style={{ color: isActive ? 'var(--cd-green)' : 'var(--cd-muted)' }}
-                  />
+                  <div className="relative">
+                    <tab.icon
+                      size={22}
+                      style={{ color: isActive ? 'var(--cd-green)' : 'var(--cd-muted)' }}
+                    />
+                    {tab.name === 'Menu' && totalQty > 0 && (
+                      <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 rounded-full bg-[#D97706] text-white text-[9px] font-black flex items-center justify-center leading-none border-2 border-white">
+                        {totalQty > 99 ? '99+' : totalQty}
+                      </span>
+                    )}
+                  </div>
                   <span
                     className="text-[10px] font-bold leading-none"
                     style={{ color: isActive ? 'var(--cd-green)' : 'var(--cd-muted)' }}
