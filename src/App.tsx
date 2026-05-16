@@ -10,6 +10,10 @@ import BranchesPage  from './pages/BranchesPage';
 import ReviewsPage   from './pages/ReviewsPage';
 import BookingsPage  from './pages/BookingsPage';
 import ContactPage   from './pages/ContactPage';
+import MenuItemDetailPage from './pages/MenuItemDetailPage';
+import BranchDetailPage   from './pages/BranchDetailPage';
+import BookingConfirmationPage from './pages/BookingConfirmationPage';
+import FeedbackPage   from './pages/FeedbackPage';
 
 // Admin
 import { AdminAuthProvider, useAdminAuth } from './admin/AdminAuthContext';
@@ -37,13 +41,17 @@ export default function App() {
         <Routes>
           {/* ── Public site ── */}
           <Route path="/" element={<PublicLayout />}>
-            <Route index            element={<HomePage />} />
-            <Route path="menu"      element={<MenuPage />} />
-            <Route path="gallery"   element={<GalleryPage />} />
-            <Route path="branches"  element={<BranchesPage />} />
-            <Route path="reviews"   element={<ReviewsPage />} />
-            <Route path="bookings"  element={<BookingsPage />} />
-            <Route path="contact"   element={<ContactPage />} />
+            <Route index                       element={<HomePage />} />
+            <Route path="menu"                 element={<MenuPage />} />
+            <Route path="menu/:menuId"         element={<MenuItemDetailPage />} />
+            <Route path="gallery"              element={<GalleryPage />} />
+            <Route path="branches"             element={<BranchesPage />} />
+            <Route path="branches/:slug"       element={<BranchDetailPage />} />
+            <Route path="reviews"              element={<ReviewsPage />} />
+            <Route path="bookings"             element={<BookingsPage />} />
+            <Route path="bookings/confirmation" element={<BookingConfirmationPage />} />
+            <Route path="contact"              element={<ContactPage />} />
+            <Route path="feedback"             element={<FeedbackPage />} />
           </Route>
 
           {/* ── Admin panel ── */}

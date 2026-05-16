@@ -1,119 +1,165 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { HiStar } from 'react-icons/hi2';
-import { BsInstagram, BsHeartFill } from 'react-icons/bs';
+import { HiStar, HiArrowLongRight } from 'react-icons/hi2';
+import { BsInstagram } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
 import { REVIEWS, GALLERY_IMAGES } from '../constants';
 import { getImgUrl } from '../utils/image';
 
+function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <HiStar key={i} size={size} className={i < rating ? 'text-[#F59E0B]' : 'text-[#E8E0D8]'} />
+      ))}
+    </div>
+  );
+}
+
 export default function ReviewsPage() {
+  const avg = REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length;
+  const top = REVIEWS.slice(0, 6);
+  const insta = GALLERY_IMAGES.slice(0, 6);
+
   return (
     <PageWrapper>
       <SEOHead
-        title="Customer Reviews | Cookers Delight"
+        title="Reviews | Cookers Delight"
         description="See what customers love about Cookers Delight. Hundreds of five-star reviews for our authentic Ghanaian and Nigerian food and fast delivery in Accra."
         canonical="https://cookers-delight.vercel.app/reviews"
       />
-      <div className="bg-brand-orange py-3 overflow-hidden flex whitespace-nowrap">
-        <div className="animate-marquee-scroll flex font-bold uppercase text-xs tracking-tighter">
-          {[...Array(20)].map((_, i) => (
-            <span key={i} className="mx-10">★ "The best Jollof in Accra" ★ "Authentic Nigerian taste" ★ "Professional service" ★ "Highly recommended" ★ </span>
-          ))}
+
+      {/* Compact hero */}
+      <section className="pt-24 pb-6 md:pt-28 md:pb-12 bg-[#F5EFE8]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+          <span className="warm-section-label block mb-2 md:mb-3">Reviews</span>
+          <h1 className="font-display text-3xl sm:text-5xl md:text-7xl font-bold text-[#1C1917]">
+            What <span className="text-[#1B5E20] italic font-normal">guests</span> say
+          </h1>
         </div>
-      </div>
+      </section>
 
-      <section className="py-24 bg-brand-black">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex flex-col items-center mb-32">
-            <motion.span
-              initial={{ opacity: 0, scale: 0.7 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              className="text-[150px] font-display font-bold leading-none mb-4 block"
-            >
-              4.8
-            </motion.span>
-            <div className="flex text-brand-orange mb-6">
-              {[...Array(5)].map((_, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 22, delay: i * 0.07 }}
-                >
-                  <HiStar size={50} />
-                </motion.span>
-              ))}
+      <section className="py-6 md:py-12 bg-[#FFFBF7]">
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 space-y-4">
+
+          {/* Top-rate dark hero card (matches reference's rating screen) */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            className="app-tile-dark p-6 sm:p-7 relative overflow-hidden"
+          >
+            <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#D97706]/30 blur-3xl pointer-events-none" />
+            <span className="app-label-light">Top rate</span>
+            <div className="flex items-end justify-between gap-4 mt-1">
+              <div>
+                <p className="font-display text-5xl sm:text-6xl font-black text-white leading-none">
+                  {avg.toFixed(1)}<span className="text-2xl text-white/40">/5</span>
+                </p>
+                <p className="text-white/60 text-xs mt-2">{REVIEWS.length}+ reviews this year</p>
+              </div>
+              <div className="flex gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <HiStar key={i} size={22} className={i < Math.round(avg) ? 'text-[#F59E0B]' : 'text-white/15'} />
+                ))}
+              </div>
             </div>
-            <p className="text-white/40 font-bold uppercase tracking-[0.3em]">Community Rated Excellence</p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-40">
-            {REVIEWS.map((r, idx) => (
+            {/* Rating distribution micro-bars */}
+            <div className="mt-5 space-y-1.5">
+              {[5, 4, 3, 2, 1].map(stars => {
+                const count = REVIEWS.filter(r => r.rating === stars).length;
+                const pct = REVIEWS.length ? (count / REVIEWS.length) * 100 : 0;
+                return (
+                  <div key={stars} className="flex items-center gap-2.5">
+                    <span className="text-[10px] font-bold text-white/60 w-3">{stars}</span>
+                    <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full bg-[#F59E0B]" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-[10px] font-bold text-white/60 w-5 text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Review list */}
+          <div className="space-y-3">
+            {top.map((r, idx) => (
               <motion.div
                 key={r.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -4, scale: 1.01 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 28, delay: (idx % 4) * 0.08 }}
-                className="bg-white/5 p-16 rounded-[60px] text-left border border-white/5"
+                transition={{ delay: idx * 0.04, type: 'spring', stiffness: 320, damping: 28 }}
+                className="app-card p-5"
               >
-                <div className="flex text-brand-orange mb-10">
-                  {[...Array(5)].map((_, j) => (
-                    <motion.span
-                      key={j}
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 22, delay: j * 0.05 }}
-                      className={j >= r.rating ? 'opacity-20' : ''}
-                    >
-                      <HiStar size={24} />
-                    </motion.span>
-                  ))}
-                </div>
-                <p className="text-3xl font-display italic font-light leading-relaxed mb-12">"{r.comment}"</p>
-                <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 rounded-full border-2 border-brand-orange flex items-center justify-center bg-brand-orange text-white font-bold text-xl">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#DCFCE7] text-[#1B5E20] flex items-center justify-center font-bold flex-shrink-0">
                     {r.author.charAt(0)}
                   </div>
-                  <div>
-                    <h4 className="font-bold text-xl">{r.author}</h4>
-                    <p className="text-white/40">{r.date}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-bold text-sm text-[#1C1917] truncate">{r.author}</p>
+                      <span className="text-[10px] text-[#A8A29E] flex-shrink-0">{r.date}</span>
+                    </div>
+                    <Stars rating={r.rating} />
+                    <p className="text-sm text-[#78716C] mt-2 leading-relaxed">{r.comment}</p>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="py-24 border-t border-white/5 text-left">
-            <h2 className="text-5xl font-display font-bold mb-12 flex items-center gap-4">
-              Follow us <span className="text-brand-orange"><BsInstagram size={40} /></span>{' '}
-              <span className="text-white/20">@cookersdelightgh</span>
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-              {GALLERY_IMAGES.slice(0, 6).map((img, i) => (
-                <motion.div
+          {/* Instagram strip */}
+          <div className="app-card-flat p-5 mt-2">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#78716C]">Follow us</p>
+                <p className="font-display text-xl font-bold text-[#1C1917] mt-0.5 flex items-center gap-2">
+                  <BsInstagram className="text-[#D97706]" /> @cookersdelightgh
+                </p>
+              </div>
+              <a
+                href="https://instagram.com/cookersdelightgh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-[#1B5E20] text-white flex items-center justify-center"
+                aria-label="Open Instagram"
+              >
+                <HiArrowLongRight size={16} />
+              </a>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {insta.map(img => (
+                <a
                   key={img.url}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className="aspect-square bg-white/5 rounded-3xl overflow-hidden relative group"
+                  href="https://instagram.com/cookersdelightgh"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="aspect-square rounded-2xl overflow-hidden bg-[#F5EFE8]"
                 >
-                  <img src={getImgUrl(img.url)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-50" alt="" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-brand-orange/60 backdrop-blur-sm">
-                    <div className="flex flex-col items-center gap-2">
-                      <BsHeartFill size={16} />
-                      <span className="text-[10px] font-bold uppercase">Follow</span>
-                    </div>
-                  </div>
-                </motion.div>
+                  <img src={getImgUrl(img.url)} alt={img.title} className="w-full h-full object-cover" loading="lazy" />
+                </a>
               ))}
             </div>
           </div>
+
+          {/* Share own feedback */}
+          <Link to="/feedback" className="block app-tile-dark p-5 active:scale-[0.99] transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="app-label-light">Your turn</span>
+                <p className="text-white text-base font-bold mt-1">Share your experience</p>
+              </div>
+              <span className="w-10 h-10 rounded-full bg-white text-[#0F3F1F] flex items-center justify-center">
+                <HiArrowLongRight size={18} />
+              </span>
+            </div>
+          </Link>
         </div>
       </section>
     </PageWrapper>
