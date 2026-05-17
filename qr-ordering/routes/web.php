@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MenuController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -7,10 +9,11 @@ Route::get('/', function () {
 });
 
 /**
- * Stable-token QR entry point — the URL printed on physical QR cards.
+ * Stable-token QR entry point — the URL encoded on physical QR cards.
  *
- * The stable_token never expires. On scan, TI creates a fresh 4-hour
- * session and returns the ephemeral session_token for this visit.
+ * The stable_token never expires. On scan, TI creates a fresh 4-hour session
+ * and returns the ephemeral session_token for this visit. We then redirect to
+ * our custom menu page (not the kawax menus route).
  */
 Route::get('/table/{stableToken}', function (string $stableToken) {
     $response = \Illuminate\Support\Facades\Http::baseUrl(config('tastyigniter.api_url'))
@@ -30,16 +33,25 @@ Route::get('/table/{stableToken}', function (string $stableToken) {
         'cd_location_name' => $session['location_name'],
     ]);
 
-    return redirect(route('menus', ['session' => $session['session_token']]));
+    return redirect()->route('menu');
 })->name('table.entry');
 
-// Legacy QR entry (old session-token-based URL, kept for any printed cards still in use)
-Route::get('/qr/{token}', function ($token) {
-    return redirect(route('menus', ['token' => $token]));
+// Legacy QR entry (old session-token-based URL, kept for any printed cards still in use).
+// Redirects to the custom menu; the session guard handles missing sessions gracefully.
+Route::get('/qr/{token}', function () {
+    return redirect()->route('menu');
 })->name('qr.entry');
 
-// Paystack callback (must be GET, not POST)
+// ── Custom menu SPA ───────────────────────────────────────────────────────────
+Route::get('/menu', [MenuController::class, 'index'])->name('menu');
+
+// ── Checkout — JSON API called by Alpine fetch() ──────────────────────────────
+Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
+    ->name('checkout.pay')
+    ->middleware('throttle:10,1');
+
+// Paystack callback (must be GET — unchanged)
 Route::get('/paystack/callback', [\App\Payment\PaystackDriver::class, 'callback'])->name('paystack.callback');
 
-// Order status tracking page
+// Order status tracking page (unchanged)
 Route::get('/orders/{orderId}/status', [\App\Http\Controllers\OrderStatusController::class, 'show'])->name('order.status');
