@@ -9,8 +9,11 @@ import type {
   ReservationInput,
 } from '../types';
 
+// Defaults to relative paths so the Vite dev proxy (vite.config.ts) can route
+// /api and /v1 to TastyIgniter without triggering CORS. Override with
+// VITE_TI_API_URL in production.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_TI_API_URL ?? 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_TI_API_URL ?? '/api',
   headers: {
     Authorization: `Bearer ${import.meta.env.VITE_TI_API_TOKEN ?? ''}`,
     Accept: 'application/json',
@@ -52,10 +55,12 @@ export const reservationApi = {
 // ─── Prep times ───────────────────────────────────────────────────────────────
 
 export const prepTimeApi = {
-  // Trick 08 — versioned path: /v1/cd/prep-times
+  // Trick 08 — versioned path: /v1/cd/prep-times (lives at the root, not /api)
   getAll: () =>
     api.get<{ data: Record<string, number> }>('/v1/cd/prep-times', {
-      baseURL: import.meta.env.VITE_TI_BASE_URL ?? import.meta.env.VITE_TI_API_URL?.replace('/api', ''),
+      baseURL: import.meta.env.VITE_TI_BASE_URL
+        ?? import.meta.env.VITE_TI_API_URL?.replace(/\/api\/?$/, '')
+        ?? '',
     }),
 };
 
