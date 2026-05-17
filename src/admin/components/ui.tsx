@@ -19,27 +19,43 @@ export function Badge({ color = '#6b7280', children }: BadgeProps) {
 }
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
+// Responsive padding token: tight on mobile so 2-column grids breathe, fuller
+// on desktop. Every page that needs custom padding overrides via className.
 export function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-[#111] border border-white/8 rounded-2xl ${className}`}>
+    <div className={`bg-[#111] border border-white/[0.06] rounded-2xl ${className}`}>
       {children}
     </div>
   );
 }
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
+// IMPORTANT: the text column gets `min-w-0` so its `truncate` actually works
+// inside the flex parent. Without `min-w-0`, flex children default to
+// `min-width: auto`, which is the content width — and long values like
+// "GH₵1,234.56" overflow the card horizontally on mobile. Value type scale
+// is responsive so it doesn't visually dominate narrow columns either.
 interface StatCardProps { label: string; value: string | number; sub?: string; icon: React.ReactNode; color?: string; }
 export function StatCard({ label, value, sub, icon, color = '#EC4824' }: StatCardProps) {
   return (
-    <Card className="p-6 flex items-start gap-4">
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-           style={{ backgroundColor: color + '18', color }}>
+    <Card className="p-3.5 sm:p-5 lg:p-6 flex items-start gap-3 sm:gap-4 min-w-0 overflow-hidden">
+      <div
+        className="w-9 h-9 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: color + '18', color }}
+      >
         {icon}
       </div>
-      <div>
-        <p className="text-white/40 text-xs font-bold uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-black text-white mt-0.5">{value}</p>
-        {sub && <p className="text-xs text-white/30 mt-0.5">{sub}</p>}
+      <div className="flex-1 min-w-0">
+        <p className="text-white/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.12em] truncate">
+          {label}
+        </p>
+        <p
+          className="text-base sm:text-xl lg:text-2xl font-black text-white mt-0.5 truncate"
+          title={String(value)}
+        >
+          {value}
+        </p>
+        {sub && <p className="text-[11px] text-white/30 mt-0.5 truncate">{sub}</p>}
       </div>
     </Card>
   );
@@ -72,16 +88,16 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
   if (!open) return null;
   const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' };
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative w-full ${widths[size]} bg-[#111] border border-white/10 rounded-2xl shadow-2xl`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
-          <h3 className="font-bold text-lg">{title}</h3>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors">
-            <HiXMark size={20} />
+      <div className={`relative w-full ${widths[size]} bg-[#111] border border-white/[0.06] rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] flex flex-col`}>
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-white/[0.06] flex-shrink-0">
+          <h3 className="font-bold text-base sm:text-lg truncate">{title}</h3>
+          <button onClick={onClose} aria-label="Close" className="w-9 h-9 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors flex-shrink-0">
+            <HiXMark size={18} />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "vite --host",
     "server": "nodemon server/index.js",
     "client": "vite",
     "seed": "node server/seed.js",

@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Paystack sends server-to-server webhooks — no browser session, no CSRF token.
+        $middleware->validateCsrfTokens(except: [
+            '/PayStack/webhook',
+            '/paystack/webhook',   // lowercase variant as safety net
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -8,6 +8,17 @@ interface UseApiState<T> {
   refetch: () => void;
 }
 
+/**
+ * Tiny data-fetching hook backed by axios.
+ *
+ * IMPORTANT: callers typically pass an inline arrow as `fetcher`
+ * (e.g. `useApi(() => fooApi.list())`). That arrow is a NEW reference
+ * on every render. If `fetcher` were a useEffect dependency, the effect
+ * would re-fire on every render and create an infinite fetch loop.
+ *
+ * To avoid forcing every caller to memoize, we stash the latest fetcher
+ * in a ref and run the effect exactly once on mount.
+ */
 export function useApi<T>(
   fetcher: () => AxiosPromise<{ data: T }>,
 ): UseApiState<T> {
@@ -16,6 +27,10 @@ export function useApi<T>(
   const [error, setError]     = useState<string | null>(null);
   const abortRef              = useRef<AbortController | null>(null);
 
+  // Always keep the latest fetcher available without making it a dep.
+  const fetcherRef = useRef(fetcher);
+  useEffect(() => { fetcherRef.current = fetcher; }, [fetcher]);
+
   const fetchData = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = new AbortController();
@@ -23,7 +38,7 @@ export function useApi<T>(
     setLoading(true);
     setError(null);
 
-    fetcher()
+    fetcherRef.current()
       .then(res => {
         setData(res.data.data);
         setLoading(false);
@@ -34,8 +49,9 @@ export function useApi<T>(
           setLoading(false);
         }
       });
-  }, [fetcher]);
+  }, []);
 
+  // Run exactly once on mount; the consumer can manually refetch.
   useEffect(() => {
     fetchData();
     return () => abortRef.current?.abort();

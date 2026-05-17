@@ -46,7 +46,8 @@ class MenuController extends Controller
         });
 
         // Flatten into two arrays Alpine can consume without recursion.
-        $categories = [];
+        // "all" is a virtual category — it matches every item regardless of category_id.
+        $categories = [['id' => 'all', 'name' => 'All']];
         $items      = [];
 
         foreach ($rawMenu as $idx => $group) {

@@ -7,6 +7,7 @@ namespace App\Payment;
 use App\Services\TastyIgniterOrderService;
 use Revolution\Ordering\Contracts\Payment\PaymentDriver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -65,6 +66,7 @@ class PaystackDriver implements PaymentDriver
         ]);
 
         $response = Http::withToken(config('services.paystack.secret_key'))
+            ->when(app()->environment('local'), fn ($h) => $h->withoutVerifying())
             ->post('https://api.paystack.co/transaction/initialize', [
                 'email'     => $customerEmail,
                 'amount'    => (int) $amount,
@@ -84,29 +86,107 @@ class PaystackDriver implements PaymentDriver
 
     /**
      * Paystack redirects here after the customer completes (or cancels) payment.
-     * We verify the transaction but do NOT mark the order paid — that is the webhook's job.
+     *
+     * Order creation flow (post-payment):
+     *   1. Verify transaction with Paystack API
+     *   2. Pull cart and customer data from session (written by CheckoutController)
+     *   3. Submit order to TastyIgniter NOW — only after payment is confirmed
+     *   4. Send admin notification email
+     *   5. Clear session cart and redirect to order tracking page
+     *
+     * This ensures no TI orders exist for abandoned/failed payments.
      */
     public function callback(Request $request): mixed
     {
         $reference = $request->query('reference', session('paystack_reference'));
-        $orderId   = session('pending_order_id');
 
-        // Verify with Paystack API (never trust the frontend callback alone).
+        // 1. Verify payment with Paystack API (never trust the redirect alone).
         $verify = Http::withToken(config('services.paystack.secret_key'))
+            ->when(app()->environment('local'), fn ($h) => $h->withoutVerifying())
             ->get("https://api.paystack.co/transaction/verify/{$reference}");
 
-        $status = $verify->json('data.status');
+        $data   = $verify->json('data', []);
+        $status = $data['status'] ?? null;
 
         if ($status !== 'success') {
-            Log::warning('Paystack callback: payment not successful', ['status' => $status, 'ref' => $reference]);
-            return redirect()->route('menus')->withErrors(['payment' => 'Payment was not completed.']);
+            Log::warning('Paystack callback: not successful', ['status' => $status, 'ref' => $reference]);
+            return redirect()->route('menu')->with('error', 'Payment was not completed. Please try again.');
         }
 
-        // Clear cart. Order paid status is updated by TI webhook — not here.
-        session()->forget(['ordering_cart', 'pending_order_id', 'paystack_reference']);
+        // 2. Pull cart and customer data from session (set by CheckoutController::pay()).
+        $cart          = session('ordering_cart', []);
+        $tableToken    = session('ordering_table_token');
+        $customerName  = session('customer_name', 'Guest');
+        $customerEmail = session('ordering_customer_email', 'guest@cookersdelight.local');
+        $locationId    = session('ordering_location_id', config('tastyigniter.default_location_id', 1));
 
-        // Send customer to order tracking page.
-        return redirect()->route('order.status', ['order_id' => $orderId]);
+        if (empty($cart)) {
+            Log::error('Paystack callback: cart missing from session', ['ref' => $reference]);
+            return redirect()->route('menu')->with('error',
+                'Payment received but session expired. Reference: ' . $reference . '. Please show this to staff.'
+            );
+        }
+
+        // 3. Submit order to TastyIgniter NOW — payment is confirmed.
+        try {
+            $order = $this->ti->submitOrder($cart, $tableToken, $customerName, $customerEmail);
+        } catch (\Throwable $e) {
+            Log::error('TI order creation failed after payment', [
+                'error' => $e->getMessage(),
+                'ref'   => $reference,
+            ]);
+            // Payment succeeded but TI order failed — send customer to a holding state
+            // with enough info for staff to manually create the order.
+            return redirect()->route('menu')->with('error',
+                'Payment received but order could not be sent to the kitchen. ' .
+                'Reference: ' . $reference . '. Please show this to staff immediately.'
+            );
+        }
+
+        $orderId = $order['order_id'];
+
+        // Mark this reference as fulfilled so the webhook doesn't duplicate the order.
+        Cache::put("paystack_fulfilled_{$reference}", $orderId, now()->addHours(4));
+
+        // 4. Send admin notification email.
+        try {
+            $tableNum = session('cd_table_number');
+            \Illuminate\Support\Facades\Mail::raw(
+                "New order #{$orderId} received!\n\n" .
+                "Table: {$tableNum}\n" .
+                "Customer: {$customerName}\n" .
+                "Reference: {$reference}\n\n" .
+                "Check the admin panel for details.",
+                function ($m) {
+                    $m->to(config('mail.admin_address', config('mail.from.address')))
+                      ->subject('New Order — Cookers Delight');
+                }
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Admin notification email failed', ['error' => $e->getMessage()]);
+        }
+
+        // 5. Clear session cart; keep pending_order_id for the status page.
+        session()->forget([
+            'ordering_cart',
+            'paystack_reference',
+            'ordering_table_token',
+            'ordering_location_id',
+            'ordering_customer_email',
+        ]);
+        session(['pending_order_id' => $orderId]);
+
+        return redirect()->route('order.status', ['orderId' => (int) $orderId]);
+    }
+
+    /**
+     * Required by PaymentDriver contract.
+     * Not used — our flow goes through CheckoutController (JSON endpoint)
+     * rather than kawax's Blade redirect flow.
+     */
+    public function redirect(): mixed
+    {
+        return redirect()->route('menu');
     }
 
     private function cartTotal(array $cart): float
