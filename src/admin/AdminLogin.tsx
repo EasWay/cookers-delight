@@ -1,14 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from './AdminAuthContext';
 
 const MAX_ATTEMPTS  = 5;
 const LOCKOUT_MS    = 5 * 60 * 1000; // 5 minutes
 
 export default function AdminLogin() {
-  const { login, loading } = useAdminAuth();
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
+  const { login, loading, token } = useAdminAuth();
+  const navigate                  = useNavigate();
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState('');
+
+  // If the user is already authenticated (token survived a reload), skip
+  // the login form entirely.
+  useEffect(() => {
+    if (token) navigate('/admin/dashboard', { replace: true });
+  }, [token, navigate]);
 
   // SECURITY: Track failed login attempts to prevent brute-force attacks.
   // After MAX_ATTEMPTS failures within LOCKOUT_MS the form is disabled.
@@ -32,6 +40,7 @@ export default function AdminLogin() {
     try {
       await login(email, password);
       failCount.current = 0; // reset on success
+      navigate('/admin/dashboard', { replace: true });
     } catch (err: unknown) {
       failCount.current += 1;
 

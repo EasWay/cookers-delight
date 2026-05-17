@@ -22,11 +22,71 @@ function createAdminApi(): AxiosInstance {
     return config;
   });
 
+  // TastyIgniter's REST API returns JSON:API shaped payloads:
+  //   { data: [{ type, id, attributes: { ...fields } }, ...] }
+  //   { data:  { type, id, attributes: { ...fields } } }
+  // The SPA pages were written assuming flat objects (item.menu_id,
+  // item.menu_name, etc). Flatten { id, ...attributes } here so every
+  // consumer sees clean objects without per-page mapping.
+  // English-plural → singular helper for TI's `{type}_id` convention.
+  // Handles the common irregulars TI ships: categories → category,
+  // currencies → currency, deliveries → delivery, taxonomies → taxonomy.
+  function singularizeType(t: string): string {
+    if (t.endsWith('ies')) return t.slice(0, -3) + 'y';
+    if (t.endsWith('ses') || t.endsWith('xes') || t.endsWith('zes')) return t.slice(0, -2);
+    if (t.endsWith('s')) return t.slice(0, -1);
+    return t;
+  }
+
+  function flattenJsonApi<T = unknown>(node: unknown): T | unknown {
+    if (Array.isArray(node)) return node.map(flattenJsonApi) as unknown as T;
+    if (node && typeof node === 'object') {
+      const obj = node as Record<string, unknown>;
+      if (
+        'attributes' in obj &&
+        obj.attributes &&
+        typeof obj.attributes === 'object'
+      ) {
+        const flat: Record<string, unknown> = {
+          id: obj.id,
+          ...(obj.attributes as Record<string, unknown>),
+        };
+        // TI convention: legacy pages expect `${singular_type}_id`
+        // (menu_id, location_id, category_id, order_id, etc.) alongside
+        // the JSON:API root `id`. Expose both for compatibility.
+        if (typeof obj.type === 'string') {
+          const key = `${singularizeType(obj.type)}_id`;
+          // Don't clobber if `attributes` already includes the prefixed id
+          // (some TI resources do put it there).
+          if (!(key in flat)) flat[key] = obj.id;
+        }
+        return flat as T;
+      }
+    }
+    return node as T;
+  }
+
   // SECURITY: If the server returns 401, the stored token has been revoked or
   // has expired. Clear all admin credentials immediately so the user is
   // redirected to the login page rather than continuing with a stale token.
   instance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      // Only touch payloads that look like JSON:API (have a top-level `data`
+      // whose elements carry `attributes`). Leave everything else untouched
+      // so non-TI endpoints (our /admin/auth, /dashboard/stats stubs, etc.)
+      // pass through unchanged.
+      const body = response.data;
+      if (body && typeof body === 'object' && 'data' in body) {
+        const d = (body as { data: unknown }).data;
+        const looksJsonApi =
+          (Array.isArray(d) && d.some((it) => it && typeof it === 'object' && 'attributes' in (it as object))) ||
+          (d && typeof d === 'object' && 'attributes' in (d as object));
+        if (looksJsonApi) {
+          (body as { data: unknown }).data = flattenJsonApi(d);
+        }
+      }
+      return response;
+    },
     (error) => {
       if (error?.response?.status === 401) {
         localStorage.removeItem(TOKEN_KEY);

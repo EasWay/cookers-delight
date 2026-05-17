@@ -6,6 +6,162 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:  'Syne', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Cormorant Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 }
+
+/* ── Brand design tokens ──────────────────────────────────────── */
+:root {
+    --cd-bg:          #0D1B0D;
+    --cd-surface:     #152415;
+    --cd-surface-2:   #1A2E1A;
+    --cd-primary:     #1B5E20;
+    --cd-amber:       #D97706;
+    --cd-amber-light: #F59E0B;
+    --cd-text:        #F5F0E8;
+    --cd-text-muted:  #7A8F7A;
+    --cd-border:      rgba(245, 240, 232, 0.08);
+    --cd-overlay:     rgba(13, 27, 13, 0.85);
+}
+
+/* ── Alpine: hide until boot ──────────────────────────────────── */
+[x-cloak] { display: none !important; }
+
+/* ── Scrollbar suppression for category strip ─────────────────── */
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Slide-up for bottom sheets ───────────────────────────────── */
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.animate-slide-up { animation: slideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.animate-fade-in  { animation: fadeIn  0.2s ease both; }
+
+/* ── Pulsing ring for order status dot ────────────────────────── */
+@keyframes statusPing {
+    0%   { transform: scale(1);   opacity: 0.8; }
+    70%  { transform: scale(1.8); opacity: 0;   }
+    100% { transform: scale(1.8); opacity: 0;   }
+}
+.status-ping {
+    position: relative;
+}
+.status-ping::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: inherit;
+    animation: statusPing 1.6s ease-out infinite;
+}
+
+/* ── Item card press feedback ─────────────────────────────────── */
+.item-card { transition: transform 0.15s ease; }
+.item-card:active { transform: scale(0.98); }
+
+/* ── iOS safe-area helpers ────────────────────────────────────── */
+/* Applied to elements pinned to the bottom of the screen so they
+   clear the iPhone home indicator (env() is ignored on non-iOS). */
+.safe-bottom {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+.safe-bottom-sheet {
+    padding-bottom: max(2.5rem, calc(env(safe-area-inset-bottom) + 1rem));
+}
+.safe-cart-bar {
+    /* Floats above the home indicator; adds extra clearance beyond bottom-6 */
+    bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));
+}
+
+/* ── Category strip edge fades ──────────────────────────────── */
+.cat-strip-wrapper { position: relative; }
+.cat-strip-wrapper::before,
+.cat-strip-wrapper::after {
+    content: ''; position: absolute; top: 0; bottom: 0;
+    width: 28px; z-index: 2; pointer-events: none;
+}
+.cat-strip-wrapper::before {
+    left: 0; background: linear-gradient(90deg, var(--cd-bg) 0%, transparent 100%);
+}
+.cat-strip-wrapper::after {
+    right: 0; background: linear-gradient(270deg, var(--cd-bg) 0%, transparent 100%);
+}
+
+/* ── Category pill states ────────────────────────────────────── */
+.cat-pill { transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1); flex-shrink: 0; }
+.cat-pill-inactive {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; background: var(--cd-surface); border: 1px solid var(--cd-border);
+}
+.cat-pill-active {
+    height: 44px; padding: 0 16px; border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.875rem; font-weight: 600; white-space: nowrap;
+    background: var(--cd-amber); color: #0D1B0D;
+}
+.cat-pill:active { transform: scale(0.93); }
+
+/* ── Sheet panel (drag-to-dismiss safe) ──────────────────────── */
+.sheet-panel {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+}
+
+/* ── Cart bar (always visible) ───────────────────────────────── */
+.cart-bar-wrap {
+    bottom: max(1.25rem, calc(env(safe-area-inset-bottom) + 0.5rem));
+}
+
+/* ── Prep time badge ─────────────────────────────────────────── */
+.prep-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 0.68rem; }
+
+/* ── Image carousel arrows ───────────────────────────────────── */
+.img-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(13,27,13,0.72); backdrop-filter: blur(4px);
+    border: 1px solid rgba(245,240,232,0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cd-text); transition: background 0.15s;
+}
+.img-arrow--l { left: 10px; }
+.img-arrow--r { right: 10px; }
+.img-arrow:active { background: rgba(13,27,13,0.92); }
+
+/* ── Image dots ─────────────────────────────────────────────── */
+.img-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(245,240,232,0.35); transition: all 0.2s;
+}
+.img-dot--active { width: 18px; border-radius: 3px; background: var(--cd-amber); }
+
+/* ── Google Translate overrides ──────────────────────────────── */
+.goog-te-banner-frame.skiptranslate { display: none !important; }
+body { top: 0 !important; }
+.goog-te-gadget { font-size: 0 !important; }
+.goog-te-gadget select {
+    font-size: 0.78rem !important; padding: 6px 10px !important;
+    background: var(--cd-surface-2) !important; color: var(--cd-text) !important;
+    border: 1px solid var(--cd-border) !important; border-radius: 10px !important;
+    outline: none !important; width: 100% !important;
+}
+
+/* ── Cart badge in header ────────────────────────────────────── */
+.hdr-cart-badge {
+    position: absolute; top: -5px; right: -7px;
+    min-width: 18px; height: 18px; border-radius: 999px;
+    background: var(--cd-amber); color: #0D1B0D;
+    font-size: 0.62rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+}
+
+/* ── Popular / fast badge ────────────────────────────────────── */
+.fast-badge { color: var(--cd-amber); font-weight: 700; }

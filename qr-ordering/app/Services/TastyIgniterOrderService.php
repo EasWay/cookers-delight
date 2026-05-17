@@ -36,7 +36,8 @@ class TastyIgniterOrderService
             ->withToken(config('tastyigniter.api_token'))
             ->acceptJson()
             ->timeout(10)
-            ->retry(3, 300);
+            ->retry(3, 300)
+            ->when(app()->environment('local'), fn ($h) => $h->withoutVerifying());
     }
 
     // -------------------------------------------------------------------------
@@ -50,40 +51,83 @@ class TastyIgniterOrderService
      */
     public function fetchMenu(int $locationId): array
     {
-        $categoriesResponse = $this->http->get('/categories', ['location' => $locationId]);
-        $menusResponse      = $this->http->get('/menus', ['location' => $locationId, 'enabled' => true]);
+        // Request categories with their menus as a JSON:API compound document.
+        $catResponse = $this->http->get('/categories', [
+            'location' => $locationId,
+            'include'  => 'menus',
+        ]);
 
-        if ($categoriesResponse->failed() || $menusResponse->failed()) {
-            Log::error('TI API: failed to fetch menu', [
-                'categories_status' => $categoriesResponse->status(),
-                'menus_status'      => $menusResponse->status(),
-            ]);
+        if ($catResponse->failed()) {
+            Log::error('TI API: failed to fetch categories', ['status' => $catResponse->status()]);
             return [];
         }
 
-        $categories = collect($categoriesResponse->json('data', []));
-        $menus      = collect($menusResponse->json('data', []));
+        $categories = collect($catResponse->json('data', []));
+        $menuLookup = collect($catResponse->json('included', []))
+            ->where('type', 'menus')
+            ->keyBy('id');
 
-        return $categories->map(function ($cat) use ($menus) {
-            $items = $menus->where('menu_category_id', $cat['id'] ?? $cat['category_id'] ?? null);
+        // Build category → menus map from the compound document.
+        $grouped = $categories->map(function ($cat) use ($menuLookup) {
+            $catAttrs = $cat['attributes'] ?? [];
+            $menuIds  = collect($cat['relationships']['menus']['data'] ?? [])->pluck('id');
 
             return [
-                'category' => $cat['name'],
-                'menus'    => $items->map(fn ($m) => $this->normalizeMenuItem($m))->values()->all(),
+                'category' => $catAttrs['name'] ?? 'Unnamed',
+                'menus'    => $menuIds
+                    ->map(fn ($id) => $menuLookup->get((string) $id))
+                    ->filter()
+                    ->map(fn ($m) => $this->normalizeMenuItem($m))
+                    ->values()
+                    ->all(),
             ];
-        })->filter(fn ($cat) => !empty($cat['menus']))->values()->all();
+        })->filter(fn ($cat) => !empty($cat['menus']))->values();
+
+        // ── Fallback: menus not assigned to categories in TastyIgniter ──────
+        // Fetch menus directly and show them all under one group so the customer
+        // can still browse. Assign menus to categories in TI admin to restore
+        // proper category navigation.
+        if ($grouped->isEmpty()) {
+            Log::warning('TI API: no menus linked to categories — showing flat list fallback.');
+
+            $menusResponse = $this->http->get('/menus', [
+                'location' => $locationId,
+                'enabled'  => true,
+            ]);
+
+            if ($menusResponse->failed()) {
+                return [];
+            }
+
+            $allMenus = collect($menusResponse->json('data', []))
+                ->map(fn ($m) => $this->normalizeMenuItem($m))
+                ->values()
+                ->all();
+
+            if (empty($allMenus)) {
+                return [];
+            }
+
+            return [['category' => 'All Items', 'menus' => $allMenus]];
+        }
+
+        return $grouped->all();
     }
 
     private function normalizeMenuItem(array $item): array
     {
+        // TastyIgniter JSON:API: top-level id + nested attributes object.
+        $attrs = $item['attributes'] ?? $item;
+        $id    = $item['id'] ?? $attrs['menu_id'] ?? $attrs['id'] ?? null;
+
         return [
-            'id'          => $item['id'] ?? $item['menu_id'],
-            'name'        => $item['menu_name'],
-            'description' => $item['menu_description'] ?? '',
-            'price'       => (float) ($item['menu_price'] ?? 0),
-            'image'       => $item['thumb'] ?? $item['media']['thumb'] ?? null,
-            'options'     => $this->normalizeOptions($item['menu_options'] ?? []),
-            'available'   => (bool) ($item['menu_status'] ?? true),
+            'id'          => $id,
+            'name'        => $attrs['menu_name']        ?? $attrs['name']        ?? '',
+            'description' => $attrs['menu_description'] ?? $attrs['description'] ?? '',
+            'price'       => (float) ($attrs['menu_price'] ?? $attrs['price'] ?? 0),
+            'image'       => $attrs['thumb'] ?? ($attrs['media']['thumb'] ?? null),
+            'options'     => $this->normalizeOptions($attrs['menu_options'] ?? []),
+            'available'   => (bool) ($attrs['menu_status'] ?? $attrs['status'] ?? true),
         ];
     }
 
@@ -115,8 +159,12 @@ class TastyIgniterOrderService
      */
     public function submitOrder(array $cart, string $tableToken, string $customerName, string $customerEmail = ''): array
     {
+        $backendUrl = config('app.backend_url')
+            ?? rtrim(preg_replace('#/api$#', '', config('tastyigniter.api_url') ?? ''), '/');
+
         // Resolve table/location context from our TI extension.
-        $sessionResponse = Http::baseUrl(config('app.backend_url'))
+        $sessionResponse = Http::baseUrl($backendUrl)
+            ->when(app()->environment('local'), fn ($h) => $h->withoutVerifying())
             ->get("/api/table-sessions/{$tableToken}");
 
         if ($sessionResponse->failed()) {
@@ -127,15 +175,32 @@ class TastyIgniterOrderService
         $locationId = $session['location_id'];
         $tableNum   = $session['table_number'];
 
+        // Split "First Last" → first_name / last_name (TI requires both fields).
+        // If only one word given, use it for both so validation passes.
+        $nameParts = explode(' ', trim($customerName), 2);
+        $firstName = $nameParts[0];
+        $lastName  = $nameParts[1] ?? $nameParts[0];
+
+        // Calculate order total here so TI receives it explicitly.
+        // TI sometimes fails to sum line items server-side, resulting in GHC0.00 totals.
+        $orderTotal = collect($cart)->sum(fn ($i) => $i['price'] * $i['quantity']);
+
         $payload = [
             'location_id'  => $locationId,
             'order_type'   => 'dine-in',
-            'first_name'   => $customerName,
+            'first_name'   => $firstName,
+            'last_name'    => $lastName,
             'email'        => $customerEmail,
             // comment appears in TI admin order list and confirmation emails
             'comment'      => "Table {$tableNum} — {$session['location_name']}",
             'payment'      => 'paystack',
-            'menu_items'   => $this->buildOrderItems($cart),
+            'status_id'    => 14,           // 14 = "Order Received" in TastyIgniter
+            'processed'    => true,         // marks payment as done, triggers order_total calc
+            'order_menus'  => $this->buildOrderItems($cart),   // TI expects 'order_menus'
+            'order_totals' => [
+                ['code' => 'subtotal', 'title' => 'Subtotal', 'value' => round($orderTotal, 2), 'priority' => 1],
+                ['code' => 'total',    'title' => 'Total',    'value' => round($orderTotal, 2), 'priority' => 99],
+            ],
             // order_options is a JSON field TI stores alongside the order;
             // our admin Tables Dashboard reads table_number from here.
             'order_options' => json_encode([
@@ -158,25 +223,53 @@ class TastyIgniterOrderService
 
         $order = $response->json('data');
 
+        // TI returns JSON:API format: id at top level, fields inside attributes.
+        // Handle both shapes defensively.
+        $attrs   = $order['attributes'] ?? $order;
+        $orderId = $attrs['order_id']
+            ?? $attrs['id']
+            ?? $order['id']          // JSON:API top-level id
+            ?? null;
+
+        if (! $orderId) {
+            Log::error('TI API: could not extract order_id from response', ['data' => $order]);
+            throw new \RuntimeException('Order created but ID not returned by TastyIgniter.');
+        }
+
+        $orderId = (int) $orderId;
+
         // Link the TI order back to the QR session via our extension.
-        Http::baseUrl(config('app.backend_url'))
-            ->post("/api/table-sessions/{$tableToken}/order", ['order_id' => $order['order_id']]);
+        Http::baseUrl($backendUrl)
+            ->when(app()->environment('local'), fn ($h) => $h->withoutVerifying())
+            ->post("/api/table-sessions/{$tableToken}/order", ['order_id' => $orderId]);
 
         return [
-            'order_id' => $order['order_id'],
-            'hash'     => $order['hash'] ?? null,
+            'order_id' => $orderId,
+            'hash'     => $attrs['hash'] ?? $order['hash'] ?? null,
         ];
     }
 
     private function buildOrderItems(array $cart): array
     {
+        // TI's restAfterSave expects objects with these exact keys (json_decoded):
+        //   id = menu_id, name, qty, price, subtotal, comment, options[]
+        // We fetch the menu name from cache so TI stores it on the order_menu row.
+        $nameCache = [];
+        $cachedMenu = \Illuminate\Support\Facades\Cache::get('ti_menu_1', []);
+        foreach ($cachedMenu as $group) {
+            foreach ($group['menus'] ?? [] as $m) {
+                $nameCache[$m['id']] = $m['name'] ?? '';
+            }
+        }
+
         return collect($cart)->map(fn ($item) => [
-            'menu_id'     => $item['id'],
-            'quantity'    => $item['quantity'],
-            'comment'     => $item['note'] ?? '',
-            'menu_options'=> collect($item['options'] ?? [])->map(fn ($opt) => [
-                'menu_option_value_id' => $opt['value_id'],
-            ])->all(),
+            'id'       => $item['id'],                          // menu_id
+            'name'     => $nameCache[$item['id']] ?? 'Item',    // item name for receipt
+            'qty'      => $item['quantity'],                    // TI uses 'qty' not 'quantity'
+            'price'    => $item['price'],
+            'subtotal' => $item['price'] * $item['quantity'],
+            'comment'  => $item['note'] ?? '',
+            'options'  => [],
         ])->all();
     }
 
@@ -190,14 +283,25 @@ class TastyIgniterOrderService
      */
     public function fetchPrepTimes(): array
     {
-        $response = Http::baseUrl(config('app.backend_url'))
-            ->get('/api/cd/prep-times');
+        // backend_url is the base of the stub/TI backend (without /api suffix).
+        // Falls back to stripping /api from the TI API URL if not set separately.
+        $backendUrl = config('app.backend_url')
+            ?? rtrim(preg_replace('#/api$#', '', config('tastyigniter.api_url') ?? ''), '/');
 
-        if ($response->failed()) {
-            return [];
+        try {
+            $response = Http::baseUrl($backendUrl)
+                ->when(app()->environment('local'), fn ($h) => $h->withoutVerifying())
+                ->get('/api/cd/prep-times');
+
+            if ($response->failed()) {
+                return [];
+            }
+
+            return $response->json('data', []);
+        } catch (\Throwable $e) {
+            Log::warning('TastyIgniterOrderService: fetchPrepTimes failed', ['error' => $e->getMessage()]);
+            return []; // non-fatal — CheckoutController defaults to 15 min
         }
-
-        return $response->json('data', []);
     }
 
     // -------------------------------------------------------------------------

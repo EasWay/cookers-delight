@@ -167,14 +167,94 @@ export default function Tables() {
   // ── Print QR ─────────────────────────────────────────────────────────────
 
   async function handlePrintQr(tableId: number) {
+    let qrUrl: string | undefined;
+    let tableNumber: number | string = '';
+    let orderingUrl: string | undefined;
+    let lanIp: string | undefined;
+
     try {
-      const res = await adminApi.get(`/admin/tables/${tableId}/qr-print`);
-      const qrUrl: string = res.data?.qr_url ?? res.data?.data?.qr_url;
-      if (qrUrl) window.open(qrUrl, '_blank', 'noreferrer');
+      const res    = await adminApi.get(`/admin/tables/${tableId}/qr-print`);
+      const data   = res.data?.data ?? res.data;
+      qrUrl        = data?.qr_url;
+      tableNumber  = data?.table_number ?? '';
+      orderingUrl  = data?.ordering_url;
+      lanIp        = data?.lan_ip;
     } catch {
-      // If endpoint fails, fall back to direct URL
-      window.open(`/admin/tables/${tableId}/qr-print`, '_blank', 'noreferrer');
+      // Network failure — fall through; we'll show an error in the popup.
     }
+
+    if (!qrUrl) {
+      // Surface to the user rather than silently doing nothing.
+      window.alert("Couldn't generate QR code. Make sure the table was saved and try again.");
+      return;
+    }
+
+    // Open a small print-ready window. CSS hides everything but the QR
+    // panel when the user hits Print (Ctrl+P or the button below the QR).
+    const html = `
+      <!doctype html>
+      <html><head>
+        <title>Table ${tableNumber} — QR Code</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style>
+          *,*::before,*::after { box-sizing: border-box; }
+          html,body { margin: 0; padding: 0; background: #fff; color: #111;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif; }
+          .wrap { min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 32px; gap: 18px; }
+          .panel { border: 2px dashed #ddd; border-radius: 16px; padding: 28px 32px;
+            text-align: center; max-width: 480px; }
+          h1 { margin: 0 0 4px; font-size: 14px; letter-spacing: 0.18em;
+            text-transform: uppercase; color: #888; font-weight: 700; }
+          .num { font-size: 64px; font-weight: 900; line-height: 1; margin: 6px 0 18px; }
+          img { display: block; width: 320px; height: 320px; max-width: 100%; margin: 0 auto; }
+          .scan { font-size: 13px; color: #666; margin-top: 14px; }
+          .url { word-break: break-all; font-family: ui-monospace, Menlo, monospace;
+            font-size: 11px; color: #999; margin-top: 6px; }
+          .actions { display: flex; gap: 12px; }
+          button { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 10px;
+            border: 1px solid #ddd; background: #fff; cursor: pointer; }
+          button.primary { background: #EC4824; border-color: #EC4824; color: #fff; }
+          @media print {
+            .actions { display: none; }
+            .panel { border: none; padding: 0; }
+            .url { display: none; }
+          }
+        </style>
+      </head><body>
+        <div class="wrap">
+          <div class="panel">
+            <h1>Table</h1>
+            <div class="num">${tableNumber}</div>
+            <img src="${qrUrl}" alt="QR code for table ${tableNumber}" />
+            <p class="scan">Scan to order</p>
+            ${orderingUrl ? `<p class="url">${orderingUrl}</p>` : ''}
+            ${lanIp ? `<p class="url" style="color:#aaa">LAN: ${lanIp} — phone must be on the same Wi-Fi, and the dev server must bind to 0.0.0.0</p>` : ''}
+          </div>
+          <div class="actions">
+            <button onclick="window.print()" class="primary">Print</button>
+            <button onclick="window.close()">Close</button>
+          </div>
+        </div>
+        <script>window.addEventListener('load', () => setTimeout(window.print, 350));</script>
+      </body></html>
+    `;
+
+    // NOTE: do NOT pass `noopener` here — it forces the return value to
+    // null and detaches the document, so document.write below would land
+    // on a window we can no longer reach. We're writing our own trusted
+    // HTML so the security trade-off is fine.
+    const w = window.open('', '_blank', 'width=520,height=720');
+    if (!w) {
+      // Popup blocked — open the raw QR image in a new tab as a fallback.
+      window.open(qrUrl, '_blank', 'noreferrer');
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    // Some browsers (Safari) need an explicit focus to surface the popup.
+    w.focus();
   }
 
   // ─── Render ──────────────────────────────────────────────────────────────
@@ -267,7 +347,7 @@ export default function Tables() {
                     {table.capacity} seats
                   </span>
                   <span className="font-mono text-xs text-white/25 bg-white/5 px-2 py-0.5 rounded">
-                    {table.stable_token.slice(0, 8)}
+                    {(table.stable_token ?? '').slice(0, 8) || '—'}
                   </span>
                 </div>
 
