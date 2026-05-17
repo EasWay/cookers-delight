@@ -6,6 +6,75 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:  'Syne', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Cormorant Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+/* ── Brand design tokens ──────────────────────────────────────── */
+:root {
+    --cd-bg:          #0D1B0D;
+    --cd-surface:     #152415;
+    --cd-surface-2:   #1A2E1A;
+    --cd-primary:     #1B5E20;
+    --cd-amber:       #D97706;
+    --cd-amber-light: #F59E0B;
+    --cd-text:        #F5F0E8;
+    --cd-text-muted:  #7A8F7A;
+    --cd-border:      rgba(245, 240, 232, 0.08);
+    --cd-overlay:     rgba(13, 27, 13, 0.85);
+}
+
+/* ── Alpine: hide until boot ──────────────────────────────────── */
+[x-cloak] { display: none !important; }
+
+/* ── Scrollbar suppression for category strip ─────────────────── */
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Slide-up for bottom sheets ───────────────────────────────── */
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.animate-slide-up { animation: slideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.animate-fade-in  { animation: fadeIn  0.2s ease both; }
+
+/* ── Pulsing ring for order status dot ────────────────────────── */
+@keyframes statusPing {
+    0%   { transform: scale(1);   opacity: 0.8; }
+    70%  { transform: scale(1.8); opacity: 0;   }
+    100% { transform: scale(1.8); opacity: 0;   }
+}
+.status-ping {
+    position: relative;
+}
+.status-ping::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: inherit;
+    animation: statusPing 1.6s ease-out infinite;
+}
+
+/* ── Item card press feedback ─────────────────────────────────── */
+.item-card { transition: transform 0.15s ease; }
+.item-card:active { transform: scale(0.98); }
+
+/* ── iOS safe-area helpers ────────────────────────────────────── */
+/* Applied to elements pinned to the bottom of the screen so they
+   clear the iPhone home indicator (env() is ignored on non-iOS). */
+.safe-bottom {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+.safe-bottom-sheet {
+    padding-bottom: max(2.5rem, calc(env(safe-area-inset-bottom) + 1rem));
+}
+.safe-cart-bar {
+    /* Floats above the home indicator; adds extra clearance beyond bottom-6 */
+    bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));
 }
