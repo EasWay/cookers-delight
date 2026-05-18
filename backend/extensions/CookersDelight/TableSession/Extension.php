@@ -16,7 +16,8 @@ class Extension extends BaseExtension
         $this->registerApiRoutes();
         $this->registerAdminRoutes();
         $this->registerSseRoute();
-        $this->registerWebhookRoutes();
+        // registerWebhookRoutes() removed — see routes/api.php for the
+        // backend webhook handler and qr-ordering for the active dine-in handler
     }
 
     // -----------------------------------------------------------------------
@@ -141,7 +142,7 @@ class Extension extends BaseExtension
     }
 
     // -----------------------------------------------------------------------
-    // SSE + Paystack — also versioned
+    // SSE — also versioned
     // -----------------------------------------------------------------------
 
     protected function registerSseRoute(): void
@@ -150,16 +151,6 @@ class Extension extends BaseExtension
             \CookersDelight\TableSession\Http\Controllers\OrderStatusStreamController::class,
             'stream',
         ])->middleware(['api', 'throttle:10,1']);
-    }
-
-    protected function registerWebhookRoutes(): void
-    {
-        // Trick 08 — webhook path versioned too so future breaking changes
-        // (e.g. switching from Paystack to Stripe) can coexist.
-        Route::post('webhooks/v1/paystack', [
-            \CookersDelight\TableSession\Http\Controllers\PaystackWebhookController::class,
-            'handle',
-        ])->middleware(['api']);
     }
 
     // -----------------------------------------------------------------------

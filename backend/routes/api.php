@@ -456,18 +456,20 @@ Route::match(['GET', 'HEAD'], '/statuses', function (Request $r) {
     return app()->handle($sub);
 });
 
-/*
+/**
  * POST /api/paystack/webhook
  *
- * Receives Paystack event notifications (charge.success, etc.).
- * Paystack signs each request with HMAC-SHA512 of the raw body using
- * the secret key. We verify before doing anything.
+ * Backend webhook handler — for orders originated on the backend
+ * (Phase 2a: direct checkout / pre-arrival ordering).
  *
- * After verification we immediately return 200 and dispatch
- * ProcessChargeSuccessJob to do the heavy lifting off the HTTP thread.
+ * NOT the active handler for dine-in QR orders.
+ * The active dine-in handler is: qr-ordering → POST /PayStack/webhook
  *
- * NOTE: This route must be exempt from CSRF (it already is — api routes
- * use the 'api' middleware group which has no CSRF middleware).
+ * Reference format expected: CD-{orderId}-{timestamp}
+ * (set by the backend checkout endpoint, not by qr-ordering's CheckoutController)
+ *
+ * Paystack dashboard URL for this handler (production):
+ *   https://yourdomain.com/api/paystack/webhook
  */
 Route::post('/paystack/webhook', function (Request $request) {
     // ── 1. Verify signature ────────────────────────────────────────
