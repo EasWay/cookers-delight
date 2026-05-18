@@ -13,6 +13,7 @@
 use Igniter\Api\Models\Token;
 use Igniter\User\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
@@ -110,13 +111,45 @@ Route::post('/announcements',        fn(Request $r) => response()->json(['data' 
 Route::put('/announcements/{id}',    fn(Request $r, $id) => response()->json(['data' => array_merge(['id' => $id], $r->all())]));
 Route::delete('/announcements/{id}', fn($id) => response()->json(null, 204));
 
-// Dashboard widgets — return zeros so the cards render without errors.
-Route::get('/dashboard/stats', fn() => response()->json([
-    'orders_today'        => 0,
-    'revenue_today'       => 0,
-    'pending_reservations' => 0,
-    'active_menu_items'   => 0,
-]));
+// Dashboard widgets — real DB queries, each wrapped in rescue() so a missing
+// table returns 0 for that card rather than crashing the whole endpoint.
+Route::get('/dashboard/stats', function () {
+    $today = now()->toDateString();
+
+    $ordersToday = rescue(
+        fn() => DB::table('orders')->whereDate('date_added', $today)->count(),
+        0
+    );
+
+    $revenueToday = rescue(
+        fn() => DB::table('orders')->whereDate('date_added', $today)->sum('order_total'),
+        0
+    );
+
+    $tablesOccupied = rescue(
+        fn() => DB::table('cd_table_sessions')
+                  ->whereNull('closed_at')
+                  ->whereDate('created_at', $today)
+                  ->count(),
+        0
+    );
+
+    $pendingOrders = rescue(
+        fn() => DB::table('orders')
+                  ->join('statuses', 'orders.status_id', '=', 'statuses.status_id')
+                  ->whereDate('orders.date_added', $today)
+                  ->whereNotIn('statuses.status_name', ['Served', 'Cancelled', 'Rejected'])
+                  ->count(),
+        0
+    );
+
+    return response()->json([
+        'orders_today'    => $ordersToday,
+        'revenue_today'   => $revenueToday,
+        'tables_occupied' => $tablesOccupied,
+        'pending_orders'  => $pendingOrders,
+    ]);
+});
 
 // CookersDelight prep-times extension stub.
 Route::get('/cd/prep-times', fn() => response()->json(['data' => []]));
