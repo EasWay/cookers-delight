@@ -17,6 +17,7 @@ import { haptic } from '../utils/haptics';
 import type { TIMenuItem } from '../types';
 
 const CATEGORIES = ['All', 'Ghanaian', 'Nigerian', 'Snacks', 'Sides', 'Fast Food', 'Continental'];
+const WHATSAPP_NUMBER = '233243379412';
 
 export default function MenuPage() {
   const { addToast } = usePageContext();
@@ -66,8 +67,8 @@ export default function MenuPage() {
   };
 
   const sendWhatsApp = () => {
-    const msg = `Hello Cookers Delight! I'd like to order:\n${cart.map(i => `- ${i.quantity}x ${i.menu_name} (GHC${i.menu_price.toFixed(2)})`).join('\n')}\n\nTotal: GHC${total.toFixed(2)}\nEstimated wait: ~${estimatedWait} min\nPlease confirm.`;
-    window.open(`https://wa.me/233243379412?text=${encodeURIComponent(msg)}`);
+    const msg = `Hello Cookers Delight! I'd like to order:\n${cart.map(i => `- ${i.quantity}x ${i.menu_name} (GH₵${i.menu_price.toFixed(2)})`).join('\n')}\n\nTotal: GH₵${total.toFixed(2)}\nEstimated wait: ~${estimatedWait} min\nPlease confirm.`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
   };
 
   return (
