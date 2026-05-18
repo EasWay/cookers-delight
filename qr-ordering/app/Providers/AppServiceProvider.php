@@ -27,5 +27,31 @@ class AppServiceProvider extends ServiceProvider
         Payment::extend('paystack', function ($app) {
             return $app->make(PaystackDriver::class);
         });
+
+        $this->warnIfDevUrl();
+    }
+
+    private function warnIfDevUrl(): void
+    {
+        if (!app()->isProduction()) {
+            return;
+        }
+
+        $url = config('app.url', '');
+        $devPatterns = ['ngrok', 'localhost', '127.0.0.1', '.local', 'tunnel'];
+
+        foreach ($devPatterns as $pattern) {
+            if (str_contains(strtolower($url), $pattern)) {
+                \Illuminate\Support\Facades\Log::critical(
+                    'PAYSTACK WEBHOOK RISK: APP_URL appears to be a dev/tunnel URL in production.',
+                    [
+                        'app_url'      => $url,
+                        'action'       => 'Update APP_URL and the Paystack webhook URL in your Paystack dashboard.',
+                        'webhook_path' => '/PayStack/webhook',
+                    ]
+                );
+                return;
+            }
+        }
     }
 }
