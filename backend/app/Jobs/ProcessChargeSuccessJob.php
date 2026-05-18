@@ -24,15 +24,14 @@ use Illuminate\Support\Facades\Log;
  *
  * Trick 11 — Plan the failure; make it boring.
  * On any exception the job is caught, logged as a business metric, then
- * re-queued with a +5 minute delay before being re-thrown so Laravel
- * can mark it failed after max attempts.
+ * re-thrown so Laravel retries it via the exponential $backoff schedule.
  */
 class ProcessChargeSuccessJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries   = 3;
-    public int $backoff = 30; // seconds between automatic retries
+    public int   $tries  = 3;
+    public array $backoff = [30, 120, 300]; // exponential: 30s → 2min → 5min
 
     public function __construct(private readonly array $data) {}
 
@@ -63,22 +62,27 @@ class ProcessChargeSuccessJob implements ShouldQueue
                         return;
                     }
 
-                    if ($order->processed === 1 || $order->processed === '1' || $order->processed === true) {
-                        return;
-                    }
-
                     $receivedStatusId = DB::table('statuses')
                         ->where('status_name', 'Received')
                         ->where('status_for', 'order')
                         ->value('status_id');
 
-                    DB::table('orders')->where('order_id', $orderId)->update([
-                        'processed'       => 1,
-                        'payment'         => $this->data['channel'] ?? 'paystack',
-                        'status_id'       => $receivedStatusId,
-                        'total_items_tax' => $amount,
-                        'updated_at'      => now(),
-                    ]);
+                    // Atomic guard: only the first concurrent instance gets rows > 0.
+                    $updated = DB::table('orders')
+                        ->where('order_id', $orderId)
+                        ->where('processed', 0)
+                        ->update([
+                            'processed'       => 1,
+                            'payment'         => $this->data['channel'] ?? 'paystack',
+                            'status_id'       => $receivedStatusId,
+                            'total_items_tax' => $amount,
+                            'updated_at'      => now(),
+                        ]);
+
+                    if (!$updated) {
+                        Log::info('ProcessChargeSuccessJob: already processed, skipping', ['order_id' => $orderId]);
+                        return;
+                    }
 
                     DB::table('status_history')->insert([
                         'object_id'   => $orderId,
@@ -105,15 +109,11 @@ class ProcessChargeSuccessJob implements ShouldQueue
                 fallback: fn () => throw new \RuntimeException('DB circuit open — deferring charge processing')
             );
         } catch (\Throwable $e) {
-            // Trick 11 — graceful degradation: log as boring business event,
-            // queue a delayed retry, then let Laravel mark the job failed.
             $metrics->record('payment.failed', [
                 'order_id'  => $orderId,
                 'reference' => $reference,
                 'error'     => $e->getMessage(),
             ]);
-
-            self::dispatch($this->data)->delay(now()->addMinutes(5));
 
             throw $e;
         }
