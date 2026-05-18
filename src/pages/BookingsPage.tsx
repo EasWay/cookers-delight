@@ -11,11 +11,8 @@ import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
 import { haptic } from '../utils/haptics';
 
-const BRANCHES = [
-  { id: 1, name: 'Adenta Command' },
-  { id: 2, name: 'Madina Zongo Junction' },
-  { id: 3, name: 'Ashiyie' },
-  { id: 4, name: 'Haatso' },
+export const BRANCHES = [
+  { id: 1, name: 'Kaneshie', address: 'Opposite Cocoa Clinic, Kaneshie' },
 ];
 
 const GUEST_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -131,7 +128,7 @@ export default function BookingsPage() {
       addToast('Reservation confirmed');
       navigate('/bookings/confirmation', {
         state: {
-          branchName: BRANCHES.find(b => b.id === form.location_id)?.name,
+          branchName: BRANCHES.find(b => b.id === form.location_id)?.address,
           reserveDate: form.reserve_date,
           reserveTime: form.reserve_time,
           guestNum: form.guest_num,
@@ -378,7 +375,7 @@ export default function BookingsPage() {
                   <div className="mt-2 text-sm text-white/90 space-y-1.5">
                     <div className="flex justify-between"><span className="text-white/60">Date</span><span className="font-bold">{form.reserve_date || '—'}</span></div>
                     <div className="flex justify-between"><span className="text-white/60">Time</span><span className="font-bold">{form.reserve_time || '—'}</span></div>
-                    <div className="flex justify-between"><span className="text-white/60">Branch</span><span className="font-bold">{BRANCHES.find(b => b.id === form.location_id)?.name}</span></div>
+                    <div className="flex justify-between"><span className="text-white/60">Branch</span><span className="font-bold text-right">{BRANCHES.find(b => b.id === form.location_id)?.address}</span></div>
                     <div className="flex justify-between"><span className="text-white/60">Guests</span><span className="font-bold">{form.guest_num}</span></div>
                   </div>
                 </div>
