@@ -6,7 +6,6 @@ import {
 import { BsWhatsapp, BsInstagram, BsFacebook } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
-import CDBoatDownloadSection from '../components/CDBoatDownloadSection';
 import { useCountUp } from '../hooks/useCountUp';
 import { formatImg } from '../utils/image';
 import { useApi } from '../hooks/useApi';
@@ -510,10 +509,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <div className="hidden md:block">
-        <CDBoatDownloadSection />
-      </div>
 
       {/* ── Mobile-only compact catering + feedback tiles ──────────────── */}
       <section className="md:hidden px-5 pb-10 pt-2 bg-[#FFFBF7] space-y-3">
