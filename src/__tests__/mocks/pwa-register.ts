@@ -1,3 +1,3 @@
 export function useRegisterSW() {
-  return { needRefresh: [false, () => {}] as const, updateServiceWorker: () => Promise.resolve() };
+  return { needRefresh: [false, () => {}] as [boolean, () => void], updateServiceWorker: () => {} };
 }
