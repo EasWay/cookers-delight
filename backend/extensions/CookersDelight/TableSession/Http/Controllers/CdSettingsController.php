@@ -16,9 +16,20 @@ use Illuminate\Routing\Controller;
  */
 class CdSettingsController extends Controller
 {
+    private const MASKED_KEYS = ['paystack_secret_key', 'paystack_webhook_secret'];
+    private const MASK = '••••••••';
+
     public function index(): JsonResponse
     {
-        return response()->json(['data' => CdSetting::allAsMap()]);
+        $map = CdSetting::allAsMap();
+
+        foreach (self::MASKED_KEYS as $key) {
+            if (!empty($map[$key])) {
+                $map[$key] = self::MASK;
+            }
+        }
+
+        return response()->json(['data' => $map]);
     }
 
     public function setMany(Request $request): JsonResponse

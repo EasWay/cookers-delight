@@ -158,10 +158,10 @@ Route::put('/cd/prep-times/{menuId}', fn(Request $r, $menuId) => response()->jso
     'prep_time_minutes' => $r->input('prep_time_minutes'),
 ]));
 
-// CookersDelight settings extension stub.
-Route::get('/cd/settings', fn() => response()->json(['data' => (object) []]));
-Route::put('/cd/settings/{key}', fn(Request $r, $key) => response()->json([$key => $r->input('value')]));
-Route::put('/cd/settings',       fn(Request $r) => response()->json($r->input('settings', [])));
+// CookersDelight settings — wired to real controller with masked GET for secrets.
+Route::get('/cd/settings',         [\CookersDelight\TableSession\Http\Controllers\CdSettingsController::class, 'index']);
+Route::put('/cd/settings/{key}',   [\CookersDelight\TableSession\Http\Controllers\CdSettingsController::class, 'set']);
+Route::put('/cd/settings',         [\CookersDelight\TableSession\Http\Controllers\CdSettingsController::class, 'setMany']);
 
 /*
  * Admin tables (dine-in tables / QR codes) — file-backed stub.
@@ -471,7 +471,7 @@ Route::match(['GET', 'HEAD'], '/statuses', function (Request $r) {
  */
 Route::post('/paystack/webhook', function (Request $request) {
     // ── 1. Verify signature ────────────────────────────────────────
-    $secretKey = config('services.paystack.secret_key');
+    $secretKey = \CookersDelight\TableSession\Support\PaystackConfig::secretKey();
 
     if (! $secretKey) {
         \Illuminate\Support\Facades\Log::error('Paystack webhook: secret key not configured');
