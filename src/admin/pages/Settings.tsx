@@ -92,6 +92,10 @@ const APPEARANCE_KEYS = [
   'hero_image_url', 'show_announcement_bar', 'maintenance_mode',
 ] as const;
 
+// Mirrors CdSettingsController::MASK — the placeholder returned by the API
+// when a secret key is set but must not be transmitted back to the browser.
+const SETTINGS_MASK = '••••••••';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function str(v: unknown): string {
@@ -1028,7 +1032,12 @@ export default function Settings() {
     async (keys: readonly string[], setSaving: (v: boolean) => void) => {
       setSaving(true);
       const pairs: SettingsMap = {};
-      for (const k of keys) pairs[k] = settings[k] ?? '';
+      for (const k of keys) {
+        const v = settings[k] ?? '';
+        // Skip keys still holding the server-side mask — the user hasn't
+        // changed them, and sending '••••••••' would overwrite the real key.
+        if (v !== SETTINGS_MASK) pairs[k] = v;
+      }
       try {
         await cdSettingsApi.setMany(pairs as Record<string, unknown>);
         setSavedSettings(prev => ({ ...prev, ...pairs }));
