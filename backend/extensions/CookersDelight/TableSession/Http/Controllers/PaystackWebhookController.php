@@ -3,6 +3,7 @@
 namespace CookersDelight\TableSession\Http\Controllers;
 
 use App\Jobs\ProcessChargeSuccessJob;
+use CookersDelight\TableSession\Support\PaystackConfig;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -49,7 +50,7 @@ class PaystackWebhookController extends Controller
 
     private function signatureIsValid(Request $request): bool
     {
-        $secret    = config('services.paystack.secret_key');
+        $secret    = PaystackConfig::secretKey();
         $signature = $request->header('X-Paystack-Signature');
         $computed  = hash_hmac('sha512', $request->getContent(), $secret);
 
