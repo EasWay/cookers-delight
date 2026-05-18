@@ -73,7 +73,7 @@ function DishCard({
 
       {/* Body */}
       <div className="p-5 flex flex-col gap-3 flex-1">
-        <StarRating rating={4.5 + Math.random() * 0.5} />
+        {/* Rating shown here once review system is live (Phase 2c) */}
         <h3 className="font-display text-lg font-bold text-[#1C1917] leading-tight">
           {item.menu_name}
         </h3>

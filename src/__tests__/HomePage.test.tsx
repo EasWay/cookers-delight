@@ -26,3 +26,21 @@ describe('CDBoatDownloadSection — removal', () => {
   })
 
 })
+
+describe('Menu card star ratings', () => {
+
+  it('HomePage source does not use Math.random() for ratings', () => {
+    const src = fs.readFileSync(
+      path.resolve(__dirname, '../pages/HomePage.tsx'), 'utf-8'
+    )
+    expect(src).not.toContain('Math.random()')
+  })
+
+  it('StarRating component is still defined (used in hero)', () => {
+    const src = fs.readFileSync(
+      path.resolve(__dirname, '../pages/HomePage.tsx'), 'utf-8'
+    )
+    expect(src).toContain('function StarRating')
+  })
+
+})
