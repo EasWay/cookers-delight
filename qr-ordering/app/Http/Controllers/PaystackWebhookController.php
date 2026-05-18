@@ -35,6 +35,13 @@ class PaystackWebhookController extends Controller
 {
     public function __construct(private TastyIgniterOrderService $ti) {}
 
+    /**
+     * CANONICAL WEBHOOK HANDLER for dine-in QR orders.
+     * Registered in Paystack dashboard as the active webhook URL.
+     *
+     * For backend/direct-checkout orders see:
+     * backend/routes/api.php → POST /api/paystack/webhook
+     */
     public function handle(Request $request): Response
     {
         // ── 1. Verify Paystack HMAC signature ───────────────────────────
