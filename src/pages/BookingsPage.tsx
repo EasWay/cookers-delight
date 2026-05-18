@@ -11,6 +11,7 @@ import PageWrapper from '../components/PageWrapper';
 import SEOHead from '../components/SEOHead';
 import { haptic } from '../utils/haptics';
 
+// TODO: replace id with the real TastyIgniter location_id from the admin panel (Manage → Locations → Kaneshie)
 export const BRANCHES = [
   { id: 1, name: 'Kaneshie', address: 'Opposite Cocoa Clinic, Kaneshie' },
 ];
