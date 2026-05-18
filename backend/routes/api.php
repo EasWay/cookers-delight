@@ -11,6 +11,7 @@
 */
 
 use CookersDelight\TableSession\Http\Controllers\AdminTablesApiController;
+use CookersDelight\TableSession\Http\Controllers\CdAnnouncementsController;
 use CookersDelight\TableSession\Http\Controllers\TableSessionController;
 use Igniter\Api\Models\Token;
 use Igniter\User\Models\User;
@@ -107,11 +108,10 @@ Route::middleware('auth:sanctum')->post('/admin/logout', function (Request $requ
 */
 
 // Announcements — the SPA polls this once/sec even on the login screen.
-// Returning [] fast is what unblocks login when running under `artisan serve`.
-Route::get('/announcements',         fn() => response()->json(['data' => []]));
-Route::post('/announcements',        fn(Request $r) => response()->json(['data' => $r->all()], 201));
-Route::put('/announcements/{id}',    fn(Request $r, $id) => response()->json(['data' => array_merge(['id' => $id], $r->all())]));
-Route::delete('/announcements/{id}', fn($id) => response()->json(null, 204));
+Route::get('/announcements',         [CdAnnouncementsController::class, 'index']);
+Route::post('/announcements',        [CdAnnouncementsController::class, 'store']);
+Route::put('/announcements/{id}',    [CdAnnouncementsController::class, 'update']);
+Route::delete('/announcements/{id}', [CdAnnouncementsController::class, 'destroy']);
 
 // Dashboard widgets — real DB queries, each wrapped in rescue() so a missing
 // table returns 0 for that card rather than crashing the whole endpoint.
