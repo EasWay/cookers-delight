@@ -167,23 +167,25 @@ export default function Tables() {
   // ── Print QR ─────────────────────────────────────────────────────────────
 
   async function handlePrintQr(tableId: number) {
-    let qrUrl: string | undefined;
+    let qrImageUrl: string | undefined;
     let tableNumber: number | string = '';
     let orderingUrl: string | undefined;
-    let lanIp: string | undefined;
 
     try {
       const res    = await adminApi.get(`/admin/tables/${tableId}/qr-print`);
       const data   = res.data?.data ?? res.data;
-      qrUrl        = data?.qr_url;
+      // The controller returns the raw ordering URL in qr_url.
+      // Construct the QR image URL here so the controller stays clean.
+      orderingUrl  = data?.qr_url;
       tableNumber  = data?.table_number ?? '';
-      orderingUrl  = data?.ordering_url;
-      lanIp        = data?.lan_ip;
+      if (orderingUrl) {
+        qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=${encodeURIComponent(orderingUrl)}`;
+      }
     } catch {
       // Network failure — fall through; we'll show an error in the popup.
     }
 
-    if (!qrUrl) {
+    if (!qrImageUrl) {
       // Surface to the user rather than silently doing nothing.
       window.alert("Couldn't generate QR code. Make sure the table was saved and try again.");
       return;
@@ -226,10 +228,9 @@ export default function Tables() {
           <div class="panel">
             <h1>Table</h1>
             <div class="num">${tableNumber}</div>
-            <img src="${qrUrl}" alt="QR code for table ${tableNumber}" />
+            <img src="${qrImageUrl}" alt="QR code for table ${tableNumber}" />
             <p class="scan">Scan to order</p>
             ${orderingUrl ? `<p class="url">${orderingUrl}</p>` : ''}
-            ${lanIp ? `<p class="url" style="color:#aaa">LAN: ${lanIp} — phone must be on the same Wi-Fi, and the dev server must bind to 0.0.0.0</p>` : ''}
           </div>
           <div class="actions">
             <button onclick="window.print()" class="primary">Print</button>
@@ -247,7 +248,7 @@ export default function Tables() {
     const w = window.open('', '_blank', 'width=520,height=720');
     if (!w) {
       // Popup blocked — open the raw QR image in a new tab as a fallback.
-      window.open(qrUrl, '_blank', 'noreferrer');
+      window.open(qrImageUrl, '_blank', 'noreferrer');
       return;
     }
     w.document.open();
