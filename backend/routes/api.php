@@ -12,6 +12,7 @@
 
 use CookersDelight\TableSession\Http\Controllers\AdminTablesApiController;
 use CookersDelight\TableSession\Http\Controllers\CdAnnouncementsController;
+use CookersDelight\TableSession\Http\Controllers\DirectCheckoutController;
 use CookersDelight\TableSession\Http\Controllers\TableSessionController;
 use Igniter\Api\Models\Token;
 use Igniter\User\Models\User;
@@ -276,3 +277,8 @@ Route::post('/paystack/webhook', function (Request $request) {
     // Always return 200 quickly — Paystack retries if we don't.
     return response()->json(['status' => 'ok']);
 });
+
+// ── Direct checkout — pre-arrival / collection orders ─────────────────────
+Route::post('/checkout',                 [DirectCheckoutController::class, 'pay'])->name('api.checkout.pay');
+Route::get('/checkout/callback',         [DirectCheckoutController::class, 'callback'])->name('api.checkout.callback');
+Route::get('/orders/{reference}/status', [DirectCheckoutController::class, 'status'])->name('api.orders.status');
