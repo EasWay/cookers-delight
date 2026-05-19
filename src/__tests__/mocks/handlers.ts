@@ -94,7 +94,7 @@ export const handlers = [
   ),
 
   // Prep times (uses root base URL, not /api)
-  http.get(`${BASE_ROOT}/cd/prep-times`, () =>
+  http.get(`${BASE_ROOT}/v1/cd/prep-times`, () =>
     HttpResponse.json({ data: { '10': 20, '11': 15, '12': 30 } })
   ),
 

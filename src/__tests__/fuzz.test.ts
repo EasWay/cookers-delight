@@ -189,7 +189,7 @@ describe('Fuzz Tests — reservationApi.getSlots with unusual params', () => {
 describe('Fuzz Tests — prepTimeApi.getAll unexpected server responses', () => {
   it('empty data object does not crash consumer iteration', async () => {
     server.use(
-      http.get(`${BASE_ROOT}/cd/prep-times`, () => HttpResponse.json({ data: {} }))
+      http.get(`${BASE_ROOT}/v1/cd/prep-times`, () => HttpResponse.json({ data: {} }))
     );
     const res = await prepTimeApi.getAll();
     expect(Object.keys(res.data.data)).toHaveLength(0);
@@ -197,7 +197,7 @@ describe('Fuzz Tests — prepTimeApi.getAll unexpected server responses', () => 
 
   it('null values for prep times are returned as-is for consumer to handle', async () => {
     server.use(
-      http.get(`${BASE_ROOT}/cd/prep-times`, () =>
+      http.get(`${BASE_ROOT}/v1/cd/prep-times`, () =>
         HttpResponse.json({ data: { '1': null, '2': 15, '3': null } })
       )
     );
