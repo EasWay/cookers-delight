@@ -14,6 +14,8 @@ import MenuItemDetailPage from './pages/MenuItemDetailPage';
 import BranchDetailPage   from './pages/BranchDetailPage';
 import BookingConfirmationPage from './pages/BookingConfirmationPage';
 import FeedbackPage   from './pages/FeedbackPage';
+import CheckoutPage       from './pages/CheckoutPage';
+import OrderTrackingPage  from './pages/OrderTrackingPage';
 
 // Admin
 import { AdminAuthProvider, useAdminAuth } from './admin/AdminAuthContext';
@@ -53,6 +55,10 @@ export default function App() {
             <Route path="contact"              element={<ContactPage />} />
             <Route path="feedback"             element={<FeedbackPage />} />
           </Route>
+
+          {/* ── Full-screen checkout & tracking (no PublicLayout nav) ── */}
+          <Route path="/checkout"                element={<CheckoutPage />} />
+          <Route path="/order/:reference/track"  element={<OrderTrackingPage />} />
 
           {/* ── Admin panel ── */}
           <Route path="/admin/login" element={<AdminLogin />} />
