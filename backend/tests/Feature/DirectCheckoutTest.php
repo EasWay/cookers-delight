@@ -30,7 +30,7 @@ class DirectCheckoutTest extends TestCase
     public function test_post_checkout_returns_409_when_item_not_in_menu(): void
     {
         // Seed menu cache with item 1 only
-        Cache::put('ti_menu_1', [['menu_id' => 1, 'menu_price' => '15.00']]);
+        Cache::put('ti_menu_1', [['menus' => [['menu_id' => 1, 'menu_price' => '15.00']]]]);
 
         Http::fake([
             'api.paystack.co/*' => Http::response(['status' => true], 200),
@@ -50,7 +50,7 @@ class DirectCheckoutTest extends TestCase
     public function test_post_checkout_ignores_client_prices(): void
     {
         // Server-side price for item 42 is GHS 25.00
-        Cache::put('ti_menu_1', [['menu_id' => 42, 'menu_price' => '25.00']]);
+        Cache::put('ti_menu_1', [['menus' => [['menu_id' => 42, 'menu_price' => '25.00']]]]);
 
         Http::fake([
             'api.paystack.co/transaction/initialize' => Http::response([
