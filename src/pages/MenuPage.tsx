@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   HiOutlineShoppingBag, HiPlus, HiMinus, HiTrash, HiXMark, HiClock,
@@ -20,6 +20,7 @@ const CATEGORIES = ['All', 'Ghanaian', 'Nigerian', 'Snacks', 'Sides', 'Fast Food
 const WHATSAPP_NUMBER = '233243379412';
 
 export default function MenuPage() {
+  const navigate = useNavigate();
   const { addToast } = usePageContext();
   const { data: items, loading, error, refetch } = useApi<TIMenuItem[]>(() => menuApi.getItems());
   const { data: prepTimes } = useApi<Record<string, number>>(() => prepTimeApi.getAll());
@@ -450,15 +451,16 @@ export default function MenuPage() {
                     <span className="font-display text-3xl font-black text-[#1C1917]">GH₵{total.toFixed(2)}</span>
                   </div>
                   <button
-                    onClick={sendWhatsApp}
-                    className="app-cta-primary w-full"
-                    style={{ background: '#25D366', boxShadow: '0 12px 28px -10px rgba(37,211,102,0.5)' }}
+                    onClick={() => { haptic(10); navigate('/checkout'); }}
+                    className="w-full py-4 rounded-2xl font-bold text-base tracking-wide bg-[var(--cd-green)] text-white transition-all active:scale-95"
                   >
-                    <span className="flex items-center gap-3">
-                      <BsWhatsapp size={18} />
-                      <span className="text-sm">Order via WhatsApp</span>
-                    </span>
-                    <span className="app-cta-chip"><HiArrowLongRight size={16} /></span>
+                    Start my order
+                  </button>
+                  <button
+                    onClick={sendWhatsApp}
+                    className="w-full py-3 rounded-2xl font-semibold text-sm tracking-wide border border-[var(--cd-border)] text-[var(--cd-muted)] bg-transparent transition-all active:scale-95"
+                  >
+                    Order via WhatsApp
                   </button>
                 </div>
               )}
@@ -500,10 +502,16 @@ export default function MenuPage() {
                     </div>
                   </div>
                   <button
-                    onClick={sendWhatsApp}
-                    className="w-full bg-[#25D366] hover:bg-[#1DAA55] text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-all"
+                    onClick={() => { haptic(10); navigate('/checkout'); }}
+                    className="w-full py-4 rounded-2xl font-bold text-base tracking-wide bg-[var(--cd-green)] text-white transition-all active:scale-95"
                   >
-                    <BsWhatsapp size={20} /> Order via WhatsApp
+                    Start my order
+                  </button>
+                  <button
+                    onClick={sendWhatsApp}
+                    className="w-full py-3 rounded-2xl font-semibold text-sm tracking-wide border border-[var(--cd-border)] text-[var(--cd-muted)] bg-transparent transition-all active:scale-95"
+                  >
+                    Order via WhatsApp
                   </button>
                 </div>
               )}
