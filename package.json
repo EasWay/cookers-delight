@@ -23,7 +23,9 @@
     "test:regression": "vitest run src/__tests__/regression.test.ts",
     "test:security": "vitest run src/__tests__/security.test.ts",
     "test:fuzz": "vitest run src/__tests__/fuzz.test.ts",
-    "test:ui": "vitest run src/__tests__/ui.test.tsx"
+    "test:ui": "vitest run src/__tests__/ui.test.tsx",
+    "dev:qr":   "cd apps/qr && pnpm install --frozen-lockfile && pnpm dev",
+    "build:qr": "cd apps/qr && pnpm install --frozen-lockfile && pnpm build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
