@@ -1,0 +1,42 @@
+/* ── Tailwind CSS 4 ──────────────────────────────────────────────── */
+@import "tailwindcss";
+
+/* ── QR App Design Tokens — Dark Theme ──────────────────────────── */
+:root {
+  --cd-bg:           #0D1B0D;
+  --cd-surface:      #152415;
+  --cd-surface-2:    #1A2E1A;
+  --cd-primary:      #1B5E20;
+  --cd-amber:        #D97706;
+  --cd-amber-light:  #F59E0B;
+  --cd-text:         #F5F0E8;
+  --cd-muted:        #7A8F7A;
+  --cd-border:       rgba(245, 240, 232, 0.08);
+  --cd-card-border:  rgba(245, 240, 232, 0.06);
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'Syne', system-ui, sans-serif;
+}
+
+/* ── Base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background-color: var(--cd-bg);
+  color: var(--cd-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  /* iOS safe area padding */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--cd-bg); }
+::-webkit-scrollbar-thumb { background: var(--cd-surface-2); border-radius: 2px; }
