@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
 import { BRANCHES } from '../pages/BookingsPage';
 
 describe('BookingsPage — BRANCHES constant', () => {
@@ -17,5 +19,23 @@ describe('BookingsPage — BRANCHES constant', () => {
     expect(names).not.toContain('Madina Zongo Junction');
     expect(names).not.toContain('Ashiyie');
     expect(names).not.toContain('Haatso');
+  });
+});
+
+describe('Booking slots — no fallback on API failure', () => {
+  const src = fs.readFileSync(
+    path.resolve(__dirname, '../pages/BookingsPage.tsx'), 'utf-8'
+  );
+
+  it('fallbackSlots function has been removed', () => {
+    expect(src).not.toContain('fallbackSlots');
+  });
+
+  it('catch handler does not call setSlots with invented times', () => {
+    expect(src).not.toContain('fallback');
+  });
+
+  it('slotsError state is defined', () => {
+    expect(src).toContain('slotsError');
   });
 });

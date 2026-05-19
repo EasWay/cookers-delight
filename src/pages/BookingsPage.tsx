@@ -44,15 +44,6 @@ const DEFAULT_FORM: FormState = {
 const STEPS = ['When', 'Where', 'Details'] as const;
 type Step = 0 | 1 | 2;
 
-function fallbackSlots(): string[] {
-  const out: string[] = [];
-  for (let h = 10; h <= 21; h++) {
-    out.push(`${String(h).padStart(2, '0')}:00`);
-    if (h < 21) out.push(`${String(h).padStart(2, '0')}:30`);
-  }
-  return out;
-}
-
 export default function BookingsPage() {
   const { addToast } = usePageContext();
   const navigate = useNavigate();
@@ -61,6 +52,7 @@ export default function BookingsPage() {
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [slots, setSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [slotsError, setSlotsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -69,6 +61,7 @@ export default function BookingsPage() {
     let cancelled = false;
     setLoadingSlots(true);
     setSlots([]);
+    setSlotsError(false);
     setForm(prev => ({ ...prev, reserve_time: '' }));
 
     reservationApi
@@ -76,7 +69,7 @@ export default function BookingsPage() {
       .then(res => {
         if (!cancelled) setSlots(res.data?.data ?? []);
       })
-      .catch(() => { if (!cancelled) setSlots(fallbackSlots()); })
+      .catch(() => { if (!cancelled) setSlotsError(true); })
       .finally(() => { if (!cancelled) setLoadingSlots(false); });
 
     return () => { cancelled = true; };
@@ -86,7 +79,6 @@ export default function BookingsPage() {
     setForm(prev => ({ ...prev, [key]: value }));
 
   const allSlots = useMemo(() => {
-    // Treat returned slots as Available; everything else (in fallback) as Occupied.
     if (slots.length > 0) return slots;
     return [];
   }, [slots]);
@@ -238,6 +230,11 @@ export default function BookingsPage() {
                         <div key={i} className="seat-tile bg-[#F5EFE8] animate-pulse" />
                       ))}
                     </div>
+                  ) : slotsError ? (
+                    <p className="text-sm text-[#A8A29E] py-8 text-center">
+                      Couldn&apos;t load available times. Please refresh or{' '}
+                      <a href="tel:+233243379412" className="underline">call us</a> to book.
+                    </p>
                   ) : allSlots.length === 0 ? (
                     <p className="text-sm text-[#A8A29E] py-8 text-center">No slots available. Try another day.</p>
                   ) : (
