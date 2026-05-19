@@ -37,6 +37,7 @@ return [
         'webhook_secret'  => env('PAYSTACK_WEBHOOK_SECRET'),
         'currency'        => 'GHS',
         'reference_prefix'=> 'CD',
+        'frontend_url'    => env('APP_FRONTEND_URL', 'http://localhost:5173'),
     ],
 
 ];
