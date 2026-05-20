@@ -282,3 +282,9 @@ Route::post('/paystack/webhook', function (Request $request) {
 Route::post('/checkout',                 [DirectCheckoutController::class, 'pay'])->name('api.checkout.pay');
 Route::get('/checkout/callback',         [DirectCheckoutController::class, 'callback'])->name('api.checkout.callback');
 Route::get('/orders/{reference}/status', [DirectCheckoutController::class, 'status'])->name('api.orders.status');
+
+// ── QR dine-in checkout — from React apps/qr ──────────────────────────────
+use CookersDelight\TableSession\Http\Controllers\QrCheckoutController;
+
+Route::post('/qr-checkout',          [QrCheckoutController::class, 'pay'])->name('api.qr.checkout.pay');
+Route::get('/qr-checkout/callback',  [QrCheckoutController::class, 'callback'])->name('api.qr.checkout.callback');
