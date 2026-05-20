@@ -47,13 +47,13 @@ export default function MenuTab({ dateRange }: { dateRange: DateRange }) {
     <div className="space-y-5 lg:space-y-6">
       {/* Top sellers */}
       <Card>
-        <div className="px-5 py-4 border-b border-white/[0.06]">
+        <div className="px-5 py-4 border-b border-[#EDE8E3]">
           <h2 className="font-bold text-sm sm:text-base">Top 10 Sellers</h2>
-          <p className="text-white/40 text-xs mt-0.5">By quantity sold in period</p>
+          <p className="text-[#78716C] text-xs mt-0.5">By quantity sold in period</p>
         </div>
         <div className="p-4 sm:p-6">
           {top.length === 0 ? (
-            <div className="flex items-center justify-center py-16 text-white/30 text-sm">No data for this period.</div>
+            <div className="flex items-center justify-center py-16 text-[#A8A29E] text-sm">No data for this period.</div>
           ) : (
             <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 36)}>
               <BarChart
@@ -87,13 +87,13 @@ export default function MenuTab({ dateRange }: { dateRange: DateRange }) {
       {/* Revenue per item */}
       {top.length > 0 && (
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h2 className="font-bold text-sm sm:text-base">Revenue by Item</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-white/30 text-[11px] uppercase tracking-widest font-bold">
+                <tr className="border-b border-[#EDE8E3] text-[#A8A29E] text-[11px] uppercase tracking-widest font-bold">
                   <th className="px-5 py-3 text-left">Item</th>
                   <th className="px-5 py-3 text-right">Qty</th>
                   <th className="px-5 py-3 text-right">Revenue</th>
@@ -101,9 +101,9 @@ export default function MenuTab({ dateRange }: { dateRange: DateRange }) {
               </thead>
               <tbody>
                 {top.map((item) => (
-                  <tr key={item.menu_id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
-                    <td className="px-5 py-2.5 text-white/80">{item.name}</td>
-                    <td className="px-5 py-2.5 text-white/50 text-right tabular-nums">{item.total_qty}</td>
+                  <tr key={item.menu_id} className="border-b border-[#F5EFE8] hover:bg-[#FAFAF9]">
+                    <td className="px-5 py-2.5 text-[#1C1917]">{item.name}</td>
+                    <td className="px-5 py-2.5 text-[#78716C] text-right tabular-nums">{item.total_qty}</td>
                     <td className="px-5 py-2.5 text-white font-bold text-right tabular-nums">
                       {formatGHS(item.total_revenue)}
                     </td>
@@ -118,17 +118,17 @@ export default function MenuTab({ dateRange }: { dateRange: DateRange }) {
       {/* Slow movers */}
       {bottom.length > 0 && (
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h2 className="font-bold text-sm sm:text-base">Slow Movers</h2>
-            <p className="text-white/40 text-xs mt-0.5">Items with lowest sales this period</p>
+            <p className="text-[#78716C] text-xs mt-0.5">Items with lowest sales this period</p>
           </div>
           <ul className="divide-y divide-white/[0.05]">
             {bottom.map((item) => (
               <li key={item.menu_id} className="flex items-center justify-between px-5 py-3">
-                <span className="text-sm text-white/70">{item.name}</span>
+                <span className="text-sm text-[#1C1917]">{item.name}</span>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-white/40 tabular-nums">{item.total_qty} sold</span>
-                  <span className="font-bold text-white/60 tabular-nums">{formatGHS(item.total_revenue)}</span>
+                  <span className="text-[#78716C] tabular-nums">{item.total_qty} sold</span>
+                  <span className="font-bold text-[#78716C] tabular-nums">{formatGHS(item.total_revenue)}</span>
                 </div>
               </li>
             ))}

@@ -15,8 +15,8 @@ interface ReportData {
 
 function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.04]">
-      <span className="text-sm text-white/50">{label}</span>
+    <div className="flex items-center justify-between px-5 py-3 border-b border-[#F5EFE8]">
+      <span className="text-sm text-[#78716C]">{label}</span>
       <span className={`text-sm font-bold ${accent ? '' : 'text-white'}`} style={accent ? { color: CHART_COLORS.green } : undefined}>
         {value}
       </span>
@@ -63,7 +63,7 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
       ).join('\n') ?? '',
       tables ? [
         `Tables,Total Sessions,${tables.total_sessions}`,
-        `Tables,Avg Session Duration,${tables.avg_session_minutes > 0 ? tables.avg_session_minutes + ' min' : '—'}`,
+        `Tables,Avg Session Duration,${tables.avg_session_minutes > 0 ? tables.avg_session_minutes + ' min' : 'â€”'}`,
       ].join('\n') : '',
       customers ? [
         `Customers,Avg Order Value,${formatGHS(customers.avg_order_value)}`,
@@ -91,20 +91,20 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-bold text-base">Period Summary</h2>
-          <p className="text-white/40 text-xs mt-0.5">{dateRange.from} → {dateRange.to}</p>
+          <p className="text-[#78716C] text-xs mt-0.5">{dateRange.from} â†’ {dateRange.to}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={downloadCsv}
             disabled={loading}
-            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-40"
+            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-[#F5EFE8] hover:bg-[#EDE8E3] text-[#78716C] hover:text-white transition-colors disabled:opacity-40"
           >
             <HiArrowDownTray size={15} />
             CSV
           </button>
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-[#F5EFE8] hover:bg-[#EDE8E3] text-[#78716C] hover:text-white transition-colors"
           >
             <HiPrinter size={15} />
             Print
@@ -115,7 +115,7 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
       <div className="grid sm:grid-cols-2 gap-4 lg:gap-5">
         {/* Revenue */}
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h3 className="font-bold text-sm">Revenue</h3>
           </div>
           {revenue ? (
@@ -126,48 +126,48 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
               <Row label="vs Prev Period"    value={formatPct(revenue.comparison.revenue_change_pct)} />
             </>
           ) : (
-            <div className="px-5 py-4 text-white/30 text-sm">Unavailable</div>
+            <div className="px-5 py-4 text-[#A8A29E] text-sm">Unavailable</div>
           )}
         </Card>
 
         {/* Top seller */}
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h3 className="font-bold text-sm">Top Menu Items</h3>
           </div>
           {menu && menu.top.length > 0 ? (
             menu.top.slice(0, 5).map((item) => (
-              <div key={item.name} className="flex items-center justify-between px-5 py-3 border-b border-white/[0.04]">
-                <span className="text-sm text-white/60 truncate max-w-[55%]">{item.name}</span>
+              <div key={item.name} className="flex items-center justify-between px-5 py-3 border-b border-[#F5EFE8]">
+                <span className="text-sm text-[#78716C] truncate max-w-[55%]">{item.name}</span>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="text-white/40">{item.total_qty}×</span>
+                  <span className="text-[#78716C]">{item.total_qty}Ã—</span>
                   <span className="font-bold text-white tabular-nums">{formatGHS(item.total_revenue)}</span>
                 </div>
               </div>
             ))
           ) : (
-            <div className="px-5 py-4 text-white/30 text-sm">Unavailable</div>
+            <div className="px-5 py-4 text-[#A8A29E] text-sm">Unavailable</div>
           )}
         </Card>
 
         {/* Tables */}
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h3 className="font-bold text-sm">Table Intelligence</h3>
           </div>
           {tables ? (
             <>
               <Row label="Total Sessions"        value={String(tables.total_sessions)} />
-              <Row label="Avg Session Duration"  value={tables.avg_session_minutes > 0 ? `${tables.avg_session_minutes} min` : '—'} />
+              <Row label="Avg Session Duration"  value={tables.avg_session_minutes > 0 ? `${tables.avg_session_minutes} min` : 'â€”'} />
             </>
           ) : (
-            <div className="px-5 py-4 text-white/30 text-sm">Unavailable</div>
+            <div className="px-5 py-4 text-[#A8A29E] text-sm">Unavailable</div>
           )}
         </Card>
 
         {/* Customers */}
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h3 className="font-bold text-sm">Customer Behaviour</h3>
           </div>
           {customers ? (
@@ -178,7 +178,7 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
               <Row label="Return Rate"        value={`${customers.return_rate_pct}%`} accent />
             </>
           ) : (
-            <div className="px-5 py-4 text-white/30 text-sm">Unavailable</div>
+            <div className="px-5 py-4 text-[#A8A29E] text-sm">Unavailable</div>
           )}
         </Card>
       </div>

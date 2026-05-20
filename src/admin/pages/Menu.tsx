@@ -259,7 +259,7 @@ export default function MenuPage() {
       {/* Page header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black">Menu Items</h1>
+          <h1 className="text-2xl font-black text-[#1C1917]">Menu Items</h1>
           {!loading && (
             <span
               className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
@@ -305,7 +305,7 @@ export default function MenuPage() {
             return (
               <Card key={item.menu_id} className="overflow-hidden flex flex-col">
                 {/* Image */}
-                <div className="relative h-44 bg-white/5 flex-shrink-0">
+                <div className="relative h-44 bg-[#F5EFE8] flex-shrink-0">
                   {item.image?.thumb_url ? (
                     <img
                       src={item.image.thumb_url}
@@ -313,7 +313,7 @@ export default function MenuPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/15">
+                    <div className="w-full h-full flex items-center justify-center text-[#EDE8E3]">
                       <HiPhoto size={40} />
                     </div>
                   )}
@@ -323,11 +323,11 @@ export default function MenuPage() {
                 <div className="p-4 flex flex-col flex-1 gap-3">
                   {/* Name + badges */}
                   <div className="space-y-2">
-                    <p className="font-bold text-white leading-snug">{item.menu_name}</p>
+                    <p className="font-bold text-[#1C1917] leading-snug">{item.menu_name}</p>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge color="#6b7280">{categoryName}</Badge>
+                      <Badge color="#78716C">{categoryName}</Badge>
                       {prepTime !== null && (
-                        <Badge color="#06b6d4">~{prepTime}min</Badge>
+                        <Badge color="#0891b2">~{prepTime}min</Badge>
                       )}
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export default function MenuPage() {
                   </p>
 
                   {/* Footer: toggle + actions */}
-                  <div className="mt-auto flex items-center justify-between pt-2 border-t border-white/8">
+                  <div className="mt-auto flex items-center justify-between pt-2" style={{ borderTop: '1px solid #EDE8E3' }}>
                     <Toggle
                       value={item.menu_status === 1}
                       onChange={() => handleToggleAvailability(item)}
@@ -347,14 +347,14 @@ export default function MenuPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openEdit(item)}
-                        className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors"
+                        className="p-2 rounded-lg text-[#A8A29E] hover:text-[#1C1917] hover:bg-[#F5EFE8] transition-colors"
                         title="Edit"
                       >
                         <HiPencil size={16} />
                       </button>
                       <button
                         onClick={() => setConfirmDelete(item.menu_id)}
-                        className="p-2 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        className="p-2 rounded-lg text-[#A8A29E] hover:text-red-500 hover:bg-red-50 transition-colors"
                         title="Delete"
                       >
                         <HiTrash size={16} />
@@ -447,7 +447,7 @@ export default function MenuPage() {
           </Field>
 
           <div className="flex items-center justify-between py-2">
-            <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Available</span>
+            <span className="text-xs font-bold text-[#78716C] uppercase tracking-widest">Available</span>
             <Toggle
               value={form.menu_status}
               onChange={v => setField('menu_status', v)}
@@ -455,7 +455,7 @@ export default function MenuPage() {
           </div>
 
           {formError && (
-            <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-2">
               {formError}
             </p>
           )}
@@ -464,7 +464,7 @@ export default function MenuPage() {
             <button
               type="button"
               onClick={closeModal}
-              className="px-4 py-2 text-sm text-white/50 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+              className="px-4 py-2 text-sm text-[#78716C] hover:text-[#1C1917] rounded-xl hover:bg-[#F5EFE8] transition-colors"
             >
               Cancel
             </button>

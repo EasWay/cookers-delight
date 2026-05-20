@@ -83,13 +83,13 @@ export default function CustomersTab({ dateRange }: { dateRange: DateRange }) {
 
       {/* New vs Returning donut */}
       <Card>
-        <div className="px-5 py-4 border-b border-white/[0.06]">
+        <div className="px-5 py-4 border-b border-[#EDE8E3]">
           <h2 className="font-bold text-sm sm:text-base">New vs Returning Customers</h2>
-          <p className="text-white/40 text-xs mt-0.5">Identified by email address</p>
+          <p className="text-[#78716C] text-xs mt-0.5">Identified by email address</p>
         </div>
         <div className="p-4 sm:p-6">
           {pieData.length === 0 ? (
-            <div className="flex items-center justify-center py-16 text-white/30 text-sm">
+            <div className="flex items-center justify-center py-16 text-[#A8A29E] text-sm">
               No customer data for this period.
             </div>
           ) : (
@@ -127,15 +127,15 @@ export default function CustomersTab({ dateRange }: { dateRange: DateRange }) {
       <Card>
         <div className="divide-y divide-white/[0.05]">
           <div className="flex items-center justify-between px-5 py-3">
-            <span className="text-sm text-white/50">New customers</span>
+            <span className="text-sm text-[#78716C]">New customers</span>
             <span className="text-sm font-bold text-white">{new_customers}</span>
           </div>
           <div className="flex items-center justify-between px-5 py-3">
-            <span className="text-sm text-white/50">Returning customers</span>
+            <span className="text-sm text-[#78716C]">Returning customers</span>
             <span className="text-sm font-bold text-white">{returning_customers}</span>
           </div>
           <div className="flex items-center justify-between px-5 py-3">
-            <span className="text-sm text-white/50">Return rate</span>
+            <span className="text-sm text-[#78716C]">Return rate</span>
             <span className="text-sm font-bold" style={{ color: CHART_COLORS.green }}>
               {return_rate_pct}%
             </span>

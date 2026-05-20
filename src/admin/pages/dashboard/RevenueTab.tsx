@@ -88,18 +88,18 @@ export default function RevenueTab({ dateRange }: { dateRange: DateRange }) {
 
       {/* Chart */}
       <Card>
-        <div className="px-5 py-4 border-b border-white/[0.06]">
+        <div className="px-5 py-4 border-b border-[#EDE8E3]">
           <h2 className="font-bold text-sm sm:text-base">Revenue &amp; Orders</h2>
         </div>
         <div className="p-4 sm:p-6">
           {chart.length === 0 ? (
-            <div className="flex items-center justify-center py-16 text-white/30 text-sm">No data for this period.</div>
+            <div className="flex items-center justify-center py-16 text-[#A8A29E] text-sm">No data for this period.</div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={chart} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
                 <CartesianGrid {...gridProps} vertical={false} />
                 <XAxis dataKey="date" tickFormatter={shortDate} {...axisProps} />
-                <YAxis yAxisId="rev" tickFormatter={(v) => `GH₵${v}`} {...axisProps} width={72} />
+                <YAxis yAxisId="rev" tickFormatter={(v) => `GHâ‚µ${v}`} {...axisProps} width={72} />
                 <YAxis yAxisId="ord" orientation="right" {...axisProps} width={36} />
                 <Tooltip
                   contentStyle={tooltipStyle}
@@ -137,15 +137,15 @@ export default function RevenueTab({ dateRange }: { dateRange: DateRange }) {
       {/* Breakdown by type */}
       {by_type.length > 0 && (
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h2 className="font-bold text-sm sm:text-base">Breakdown by Type</h2>
           </div>
           <div className="divide-y divide-white/[0.05]">
             {by_type.map((row) => (
               <div key={row.type} className="flex items-center justify-between px-5 py-3">
-                <span className="text-sm text-white/70 capitalize">{row.type}</span>
+                <span className="text-sm text-[#1C1917] capitalize">{row.type}</span>
                 <div className="flex items-center gap-6 text-sm">
-                  <span className="text-white/50">{row.orders} orders</span>
+                  <span className="text-[#78716C]">{row.orders} orders</span>
                   <span className="font-bold text-white tabular-nums">{formatGHS(row.revenue)}</span>
                 </div>
               </div>
