@@ -1,0 +1,44 @@
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+      args:
+        VITE_TI_API_URL:   ${VITE_TI_API_URL}
+        VITE_TI_API_TOKEN: ${VITE_TI_API_TOKEN}
+        VITE_TI_BASE_URL:  ${VITE_TI_BASE_URL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    restart: always
+    environment:
+      APP_ENV: production
+    healthcheck:
+      test: ["CMD", "php", "artisan", "tinker", "--execute=DB::connection()->getPdo();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  queue:
+    restart: always
+
+  mysql:
+    restart: always
+
+  redis:
+    restart: always

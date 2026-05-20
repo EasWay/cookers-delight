@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [staging]
+
+jobs:
+  backend-tests:
+    name: PHP Tests
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: cd_test
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring, zip, gd, redis, bcmath, pcntl
+          coverage: none
+
+      - name: Get Composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer deps
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        working-directory: ./backend
+        env:
+          IGNITER_CARTE_KEY: ${{ secrets.IGNITER_CARTE_KEY }}
+        run: |
+          if [ -n "$IGNITER_CARTE_KEY" ]; then
+            composer config http-basic.igniter.carteblanche.app carte "$IGNITER_CARTE_KEY"
+          fi
+          composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Copy test .env
+        working-directory: ./backend
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=cd_test/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
+          php artisan key:generate
+
+      - name: Run migrations
+        working-directory: ./backend
+        run: php artisan migrate --force
+
+      - name: Run tests
+        working-directory: ./backend
+        run: php artisan test --parallel
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install root deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Install QR app deps
+        working-directory: ./apps/qr
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check (public site)
+        run: pnpm run type-check
+
+      - name: Run tests (public site)
+        run: pnpm run test
+
+      - name: Run tests (QR app)
+        working-directory: ./apps/qr
+        run: pnpm run test
+
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [frontend-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build public site
+        env:
+          VITE_TI_API_URL:   ${{ vars.VITE_TI_API_URL || 'http://localhost:8000/api' }}
+          VITE_TI_BASE_URL:  ${{ vars.VITE_TI_BASE_URL || 'http://localhost:8000' }}
+          VITE_TI_API_TOKEN: placeholder
+        run: pnpm run build
+
+      - name: Install QR deps + build
+        working-directory: ./apps/qr
+        run: pnpm install --frozen-lockfile && pnpm run build

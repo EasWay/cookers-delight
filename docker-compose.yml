@@ -1,0 +1,86 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE:      ${MYSQL_DATABASE:-cookers_delight}
+      MYSQL_USER:          ${MYSQL_USER:-cd_user}
+      MYSQL_PASSWORD:      ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        IGNITER_CARTE_KEY: ${IGNITER_CARTE_KEY:-}
+    restart: unless-stopped
+    env_file: ./backend/.env.docker
+    environment:
+      DB_HOST:          mysql
+      DB_DATABASE:      ${MYSQL_DATABASE:-cookers_delight}
+      DB_USERNAME:      ${MYSQL_USER:-cd_user}
+      DB_PASSWORD:      ${MYSQL_PASSWORD}
+      REDIS_HOST:       redis
+      REDIS_PORT:       "6379"
+      QUEUE_CONNECTION: redis
+      CACHE_DRIVER:     redis
+      SESSION_DRIVER:   redis
+    volumes:
+      - backend_storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        IGNITER_CARTE_KEY: ${IGNITER_CARTE_KEY:-}
+    restart: unless-stopped
+    command: >
+      sh -c "sleep 10 && php artisan queue:work redis
+             --tries=3
+             --backoff=30,120,300
+             --sleep=3
+             --max-jobs=500
+             --max-time=3600"
+    env_file: ./backend/.env.docker
+    environment:
+      DB_HOST:     mysql
+      DB_DATABASE: ${MYSQL_DATABASE:-cookers_delight}
+      DB_USERNAME: ${MYSQL_USER:-cd_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST:  redis
+    volumes:
+      - backend_storage:/var/www/html/storage
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  redis_data:
+  backend_storage:
