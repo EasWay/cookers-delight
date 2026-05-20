@@ -295,3 +295,12 @@ use CookersDelight\TableSession\Http\Controllers\KitchenApiController;
 Route::post('/kitchen/verify-pin',              [KitchenApiController::class, 'verifyPin']);
 Route::get('/kitchen/orders',                   [KitchenApiController::class, 'poll']);
 Route::post('/kitchen/orders/{orderId}/status', [KitchenApiController::class, 'updateStatus']);
+
+// ── Dashboard analytics ────────────────────────────────────────────────────
+use CookersDelight\TableSession\Http\Controllers\DashboardAnalyticsController;
+
+Route::get('/dashboard/revenue',            [DashboardAnalyticsController::class, 'revenue']);
+Route::get('/dashboard/menu-performance',   [DashboardAnalyticsController::class, 'menuPerformance']);
+Route::get('/dashboard/table-intelligence', [DashboardAnalyticsController::class, 'tableIntelligence']);
+Route::get('/dashboard/customer-behaviour', [DashboardAnalyticsController::class, 'customerBehaviour']);
+Route::get('/dashboard/alerts',             [DashboardAnalyticsController::class, 'alerts']);

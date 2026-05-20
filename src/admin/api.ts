@@ -107,8 +107,13 @@ export const adminApi = createAdminApi();
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 export const dashboardApi = {
-  stats: () => adminApi.get('/dashboard/stats'),
-  recentOrders: (limit = 10) => adminApi.get('/orders', { params: { pageLimit: limit, sort: 'created_at desc' } }),
+  stats:             () => adminApi.get('/dashboard/stats'),
+  recentOrders:      (limit = 10) => adminApi.get('/orders', { params: { pageLimit: limit, sort: 'created_at desc' } }),
+  revenue:           (params: { from: string; to: string }) => adminApi.get('/dashboard/revenue', { params }),
+  menuPerformance:   (params: { from: string; to: string }) => adminApi.get('/dashboard/menu-performance', { params }),
+  tableIntelligence: (params: { from: string; to: string }) => adminApi.get('/dashboard/table-intelligence', { params }),
+  customerBehaviour: (params: { from: string; to: string }) => adminApi.get('/dashboard/customer-behaviour', { params }),
+  alerts:            () => adminApi.get('/dashboard/alerts'),
 };
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
