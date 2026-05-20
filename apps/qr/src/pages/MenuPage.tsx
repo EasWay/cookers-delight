@@ -318,7 +318,7 @@ export default function MenuPage() {
         <div className="py-3">
           {totalQty === 0 ? (
             <div className="text-center py-2 text-sm" style={{ color: 'var(--cd-muted)' }}>
-              Tap anything to start your order
+              Tap anything to begin
             </div>
           ) : (
             <button
@@ -789,7 +789,7 @@ function CartSheet({ cart, total, onClose, onIncrement, onDecrement, onCheckout 
             className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-transform active:scale-[0.98]"
             style={{ backgroundColor: 'var(--cd-amber)', color: '#0D1B0D' }}
           >
-            Place Order
+            Send to the kitchen →
           </button>
         </div>
       </motion.div>
