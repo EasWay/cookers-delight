@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getPresetRange, type DatePreset, type DateRange } from './dashboard/types';
 import { inputClass } from '../components/ui';
+import { dashboardApi } from '../api';
 import OverviewTab   from './dashboard/OverviewTab';
 import RevenueTab    from './dashboard/RevenueTab';
 import MenuTab       from './dashboard/MenuTab';
@@ -85,6 +86,23 @@ export default function Dashboard() {
   const [dateRange, setDateRange]       = useState<DateRange>(getPresetRange('7d'));
   const [customFrom, setCustomFrom]     = useState('');
   const [customTo, setCustomTo]         = useState('');
+  const [alertCount, setAlertCount]     = useState(0);
+  const [hasCritical, setHasCritical]   = useState(false);
+
+  useEffect(() => {
+    function fetchAlertCount() {
+      dashboardApi.alerts()
+        .then(r => {
+          const list = r.data?.alerts ?? [];
+          setAlertCount(list.length);
+          setHasCritical(list.some((a: { severity: string }) => a.severity === 'critical'));
+        })
+        .catch(() => {});
+    }
+    fetchAlertCount();
+    const id = setInterval(fetchAlertCount, 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
 
   function applyPreset(p: Exclude<DatePreset, 'custom'>) {
     setPreset(p);
@@ -154,13 +172,21 @@ export default function Dashboard() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-shrink-0 text-sm px-4 py-2.5 font-bold border-b-2 transition-colors ${
+            className={`flex-shrink-0 inline-flex items-center gap-1 text-sm px-4 py-2.5 font-bold border-b-2 transition-colors ${
               activeTab === tab.id
                 ? 'border-[#EC4824] text-white'
                 : 'border-transparent text-white/40 hover:text-white/70'
             }`}
           >
             {tab.label}
+            {tab.id === 'alerts' && alertCount > 0 && (
+              <span
+                className="w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center"
+                style={{ backgroundColor: hasCritical ? '#ef4444' : '#eab308', color: '#fff' }}
+              >
+                {alertCount > 9 ? '9+' : alertCount}
+              </span>
+            )}
           </button>
         ))}
       </div>

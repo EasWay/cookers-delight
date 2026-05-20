@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { dashboardApi } from '../../api';
 import { Card, Spinner } from '../../components/ui';
-import { HiPrinter } from 'react-icons/hi2';
+import { HiPrinter, HiArrowDownTray } from 'react-icons/hi2';
 import type { DateRange } from './types';
 import { formatGHS, formatPct } from './types';
 import { CHART_COLORS } from './chartTheme';
@@ -49,6 +49,42 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
 
   const { revenue, menu, tables, customers } = data;
 
+  function downloadCsv() {
+    const rows: string[] = [
+      'Section,Metric,Value',
+      revenue ? [
+        `Revenue,Total Revenue,${formatGHS(revenue.totals.revenue)}`,
+        `Revenue,Total Orders,${revenue.totals.orders}`,
+        `Revenue,Avg Order Value,${formatGHS(revenue.totals.avg_order_value)}`,
+        `Revenue,vs Previous Period,${formatPct(revenue.comparison.revenue_change_pct)}`,
+      ].join('\n') : '',
+      menu?.top.slice(0, 5).map(i =>
+        `Menu,${i.name} (qty),${i.total_qty}`
+      ).join('\n') ?? '',
+      tables ? [
+        `Tables,Total Sessions,${tables.total_sessions}`,
+        `Tables,Avg Session Duration,${tables.avg_session_minutes > 0 ? tables.avg_session_minutes + ' min' : '—'}`,
+      ].join('\n') : '',
+      customers ? [
+        `Customers,Avg Order Value,${formatGHS(customers.avg_order_value)}`,
+        `Customers,New Customers,${customers.new_customers}`,
+        `Customers,Returning Customers,${customers.returning_customers}`,
+        `Customers,Return Rate,${customers.return_rate_pct}%`,
+      ].join('\n') : '',
+    ].filter(Boolean);
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'), {
+      href:     url,
+      download: `cookers-delight-report-${dateRange.from}-to-${dateRange.to}.csv`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="space-y-5 lg:space-y-6">
       {/* Header + print */}
@@ -57,13 +93,23 @@ export default function ReportsTab({ dateRange }: { dateRange: DateRange }) {
           <h2 className="font-bold text-base">Period Summary</h2>
           <p className="text-white/40 text-xs mt-0.5">{dateRange.from} → {dateRange.to}</p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-        >
-          <HiPrinter size={15} />
-          Print
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={downloadCsv}
+            disabled={loading}
+            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-40"
+          >
+            <HiArrowDownTray size={15} />
+            CSV
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+          >
+            <HiPrinter size={15} />
+            Print
+          </button>
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4 lg:gap-5">
