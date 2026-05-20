@@ -38,6 +38,7 @@ return [
         'currency'        => 'GHS',
         'reference_prefix'=> 'CD',
         'frontend_url'    => env('APP_FRONTEND_URL', 'http://localhost:5173'),
+        'qr_app_url'      => env('QR_APP_URL', 'http://localhost:5174'),
     ],
 
 ];
