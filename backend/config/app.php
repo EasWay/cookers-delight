@@ -140,6 +140,8 @@ return [
     |
     */
 
+    'kitchen_pin' => env('KITCHEN_PIN', '1234'),
+
     'maintenance' => [
         'driver' => 'file',
         // 'store'  => 'redis',

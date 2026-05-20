@@ -288,3 +288,10 @@ use CookersDelight\TableSession\Http\Controllers\QrCheckoutController;
 
 Route::post('/qr-checkout',          [QrCheckoutController::class, 'pay'])->name('api.qr.checkout.pay');
 Route::get('/qr-checkout/callback',  [QrCheckoutController::class, 'callback'])->name('api.qr.checkout.callback');
+
+// ── Kitchen display API ────────────────────────────────────────────────────
+use CookersDelight\TableSession\Http\Controllers\KitchenApiController;
+
+Route::post('/kitchen/verify-pin',              [KitchenApiController::class, 'verifyPin']);
+Route::get('/kitchen/orders',                   [KitchenApiController::class, 'poll']);
+Route::post('/kitchen/orders/{orderId}/status', [KitchenApiController::class, 'updateStatus']);
