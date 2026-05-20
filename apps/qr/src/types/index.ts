@@ -61,3 +61,21 @@ export interface QRSession {
   location_name: string;
   expires_at:    string;
 }
+
+export interface QRMenuItem {
+  menu_id:           number;
+  menu_name:         string;
+  menu_description:  string;
+  menu_price:        number;
+  prep_time_minutes: number;
+  thumb?:            string;
+  images?:           string[];
+  category_id?:      number | null;
+  ingredients?:      string[];
+  calories?:         number | null;
+}
+
+export interface QRCategory {
+  id:   string;   // category_id as string, or 'all'
+  name: string;
+}
