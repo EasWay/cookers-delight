@@ -1,0 +1,63 @@
+name: Deploy — Staging
+
+on:
+  push:
+    branches: [staging]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key:      ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            set -e
+
+            cd /opt/cookers-delight
+
+            echo "── Pulling latest staging branch ──"
+            git fetch origin staging
+            git checkout staging
+            git reset --hard origin/staging
+
+            echo "── Building + starting containers ──"
+            export IGNITER_CARTE_KEY="${{ secrets.IGNITER_CARTE_KEY }}"
+            export MYSQL_ROOT_PASSWORD="${{ secrets.STAGING_DB_ROOT_PASSWORD }}"
+            export MYSQL_DATABASE=cookers_delight_staging
+            export MYSQL_USER=cd_user
+            export MYSQL_PASSWORD="${{ secrets.STAGING_DB_PASSWORD }}"
+            export VITE_TI_API_URL="${{ vars.STAGING_VITE_TI_API_URL }}"
+            export VITE_TI_API_TOKEN="${{ secrets.STAGING_VITE_TI_API_TOKEN }}"
+            export VITE_TI_BASE_URL="${{ vars.STAGING_VITE_TI_BASE_URL }}"
+            export STAGING_URL="${{ vars.STAGING_URL }}"
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.staging.yml \
+              pull --ignore-pull-failures || true
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.staging.yml \
+              up -d --build --remove-orphans
+
+            echo "── Running migrations ──"
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.staging.yml \
+              exec -T backend php artisan migrate --force
+
+            echo "── Deployment complete ──"

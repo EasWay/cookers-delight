@@ -1,0 +1,26 @@
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+      args:
+        VITE_TI_API_URL:   ${VITE_TI_API_URL}
+        VITE_TI_API_TOKEN: ${VITE_TI_API_TOKEN}
+        VITE_TI_BASE_URL:  ${VITE_TI_BASE_URL}
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    environment:
+      APP_ENV: staging
+      APP_URL: ${STAGING_URL:-http://staging.cookersdelight.com}
+
+  queue:
+    environment:
+      APP_ENV: staging
