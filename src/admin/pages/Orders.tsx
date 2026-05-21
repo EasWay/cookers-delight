@@ -37,15 +37,15 @@ interface OrderOptions {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending: '#eab308',
-  New: '#eab308',
-  Preparing: '#EC4824',
+  Pending:    '#d97706',
+  New:        '#d97706',
+  Preparing:  '#EC4824',
   Processing: '#EC4824',
-  Ready: '#22c55e',
-  Delivered: '#22c55e',
-  Completed: '#22c55e',
-  Served: '#6b7280',
-  Cancelled: '#ef4444',
+  Ready:      '#16A34A',
+  Delivered:  '#16A34A',
+  Completed:  '#16A34A',
+  Served:     '#78716C',
+  Cancelled:  '#ef4444',
 };
 
 const PAGE_SIZE = 20;
@@ -136,41 +136,41 @@ function OrderDetailModal({ order, statuses, onClose, onStatusChange }: OrderDet
         {/* Order header */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest font-bold mb-1">Order</p>
-            <p className="text-white font-bold">#{order.order_id}</p>
+            <p className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold mb-1">Order</p>
+            <p className="text-[#1C1917] font-bold">#{order.order_id}</p>
           </div>
           <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest font-bold mb-1">Table / Type</p>
-            <p className="text-white/80">{getTableLabel(order)}</p>
+            <p className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold mb-1">Table / Type</p>
+            <p className="text-[#78716C]">{getTableLabel(order)}</p>
           </div>
           <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest font-bold mb-1">Total</p>
-            <p className="text-white font-bold">{formatRevenue(order.order_total ?? 0)}</p>
+            <p className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold mb-1">Total</p>
+            <p className="text-[#1C1917] font-bold">{formatRevenue(order.order_total ?? 0)}</p>
           </div>
           <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest font-bold mb-1">Time</p>
-            <p className="text-white/60 text-sm">{timeAgo(order.created_at)}</p>
+            <p className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold mb-1">Time</p>
+            <p className="text-[#78716C] text-sm">{timeAgo(order.created_at)}</p>
           </div>
         </div>
 
         {/* Status */}
         <div className="flex items-center gap-3">
-          <span className="text-white/30 text-xs uppercase tracking-widest font-bold">Status:</span>
+          <span className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold">Status:</span>
           <Badge color={statusColor}>{statusLabel}</Badge>
         </div>
 
         {/* Location info from order_options */}
         {(opts.table_number || opts.location_name) && (
-          <div className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3 space-y-1">
+          <div className="bg-[#FAFAF9] border border-[#EDE8E3] rounded-xl px-4 py-3 space-y-1">
             {opts.table_number && (
-              <p className="text-xs text-white/50">
-                <span className="text-white/30 uppercase tracking-widest font-bold mr-2">Table:</span>
+              <p className="text-xs text-[#78716C]">
+                <span className="text-[#A8A29E] uppercase tracking-widest font-bold mr-2">Table:</span>
                 {String(opts.table_number)}
               </p>
             )}
             {opts.location_name && (
-              <p className="text-xs text-white/50">
-                <span className="text-white/30 uppercase tracking-widest font-bold mr-2">Location:</span>
+              <p className="text-xs text-[#78716C]">
+                <span className="text-[#A8A29E] uppercase tracking-widest font-bold mr-2">Location:</span>
                 {String(opts.location_name)}
               </p>
             )}
@@ -180,7 +180,7 @@ function OrderDetailModal({ order, statuses, onClose, onStatusChange }: OrderDet
         {/* Items */}
         {order.order_menus && order.order_menus.length > 0 && (
           <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest font-bold mb-3">Items</p>
+            <p className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold mb-3">Items</p>
             <div className="space-y-2">
               {order.order_menus.map((item, idx) => {
                 const unitPrice = typeof item.price === 'number' ? item.price : parseFloat(String(item.price)) || 0;
@@ -188,15 +188,15 @@ function OrderDetailModal({ order, statuses, onClose, onStatusChange }: OrderDet
                 return (
                   <div
                     key={idx}
-                    className="flex items-center justify-between px-4 py-3 bg-white/[0.03] border border-white/8 rounded-xl"
+                    className="flex items-center justify-between px-4 py-3 bg-[#FAFAF9] border border-[#EDE8E3] rounded-xl"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-white/30 text-xs font-bold w-5 text-center">×{item.quantity}</span>
-                      <span className="text-white/80 text-sm">{item.name}</span>
+                      <span className="text-[#A8A29E] text-xs font-bold w-5 text-center">×{item.quantity}</span>
+                      <span className="text-[#1C1917] text-sm">{item.name}</span>
                     </div>
                     <div className="text-right">
-                      <p className="text-white/40 text-xs">{formatRevenue(unitPrice)} ea</p>
-                      <p className="text-white font-bold text-sm">{formatRevenue(subtotal)}</p>
+                      <p className="text-[#78716C] text-xs">{formatRevenue(unitPrice)} ea</p>
+                      <p className="text-[#1C1917] font-bold text-sm">{formatRevenue(subtotal)}</p>
                     </div>
                   </div>
                 );
@@ -208,7 +208,7 @@ function OrderDetailModal({ order, statuses, onClose, onStatusChange }: OrderDet
         {/* Status change */}
         {statuses.length > 0 && (
           <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest font-bold mb-2">Update Status</p>
+            <p className="text-[#A8A29E] text-xs uppercase tracking-widest font-bold mb-2">Update Status</p>
             <div className="flex gap-3">
               <select
                 value={selectedStatusId}
@@ -361,8 +361,8 @@ export default function Orders() {
     <div className="space-y-6">
       {/* Page title */}
       <div>
-        <h1 className="text-2xl font-black">Orders</h1>
-        <p className="text-white/40 text-sm mt-0.5">Manage and track all orders</p>
+        <h1 className="text-2xl font-black text-[#1C1917]">Orders</h1>
+        <p className="text-[#A8A29E] text-sm mt-0.5">Manage and track all orders</p>
       </div>
 
       {/* Filter bar */}
@@ -415,7 +415,7 @@ export default function Orders() {
             />
           </div>
 
-          <span className="text-white/30 text-xs ml-auto">
+          <span className="text-[#A8A29E] text-xs ml-auto">
             {filtered.length} order{filtered.length !== 1 ? 's' : ''}
           </span>
         </div>
@@ -438,14 +438,14 @@ export default function Orders() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/8 text-white/30 text-xs uppercase tracking-widest font-bold">
-                  <th className="px-5 py-3 text-left">Order #</th>
-                  <th className="px-5 py-3 text-left">Table / Type</th>
-                  <th className="px-5 py-3 text-left">Items</th>
-                  <th className="px-5 py-3 text-left">Total</th>
-                  <th className="px-5 py-3 text-left">Status</th>
-                  <th className="px-5 py-3 text-left">Time</th>
-                  <th className="px-5 py-3 text-left">Actions</th>
+                <tr style={{ borderBottom: '1px solid #F5EFE8' }}>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Order #</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Table / Type</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Items</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Total</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Status</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Time</th>
+                  <th className="px-5 py-3 text-left text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -455,25 +455,26 @@ export default function Orders() {
                   return (
                     <tr
                       key={order.order_id}
-                      className="border-b border-white/5 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                      className="hover:bg-[#FAFAF9] transition-colors cursor-pointer"
+                      style={{ borderBottom: '1px solid #F5EFE8' }}
                       onClick={() => setSelectedOrder(order)}
                     >
-                      <td className="px-5 py-3.5 font-mono text-white/80 font-bold">
+                      <td className="px-5 py-3.5 font-mono text-sm font-bold text-[#1C1917]">
                         #{order.order_id}
                       </td>
-                      <td className="px-5 py-3.5 text-white/70">
+                      <td className="px-5 py-3.5 text-sm text-[#78716C]">
                         {getTableLabel(order)}
                       </td>
-                      <td className="px-5 py-3.5 text-white/60">
+                      <td className="px-5 py-3.5 text-sm text-[#78716C]">
                         {order.order_menus?.length ?? 0}
                       </td>
-                      <td className="px-5 py-3.5 text-white font-bold">
+                      <td className="px-5 py-3.5 text-sm font-bold text-[#1C1917]">
                         {formatRevenue(order.order_total ?? 0)}
                       </td>
                       <td className="px-5 py-3.5">
                         <Badge color={statusColor}>{statusLabel}</Badge>
                       </td>
-                      <td className="px-5 py-3.5 text-white/40 text-xs">
+                      <td className="px-5 py-3.5 text-xs text-[#A8A29E]">
                         {timeAgo(order.created_at)}
                       </td>
                       <td
@@ -485,7 +486,7 @@ export default function Orders() {
                             value={order.status_id ?? ''}
                             onChange={e => handleStatusChange(order.order_id, Number(e.target.value))}
                             disabled={updatingId === order.order_id}
-                            className="bg-[#0d0d0d] border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs focus:border-[#EC4824] focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-wait"
+                            className="bg-[#FAFAFA] border border-[#EDE8E3] rounded-lg px-2.5 py-1.5 text-[#1C1917] text-xs focus:border-[#EC4824] focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-wait"
                           >
                             <option value="">Change…</option>
                             {statuses.map(s => (
@@ -495,7 +496,7 @@ export default function Orders() {
                             ))}
                           </select>
                         ) : (
-                          <span className="text-white/20 text-xs">—</span>
+                          <span className="text-[#A8A29E] text-xs">—</span>
                         )}
                       </td>
                     </tr>
@@ -508,20 +509,19 @@ export default function Orders() {
 
         {/* Pagination */}
         {!loading && !error && totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-4 border-t border-white/8">
-            <span className="text-white/30 text-xs">
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderTop: '1px solid #EDE8E3' }}>
+            <span className="text-[#A8A29E] text-xs">
               Page {safePage} of {totalPages} &mdash; {filtered.length} orders
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={safePage === 1}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#EDE8E3] text-[#78716C] hover:text-[#1C1917] hover:border-[#A8A29E] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <HiChevronLeft size={16} />
               </button>
 
-              {/* Page number pills */}
               {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
                 let p: number;
                 if (totalPages <= 7) {
@@ -540,7 +540,7 @@ export default function Orders() {
                     className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
                       p === safePage
                         ? 'bg-[#EC4824] text-white'
-                        : 'text-white/40 hover:text-white hover:bg-white/5'
+                        : 'text-[#78716C] hover:text-[#1C1917] hover:bg-[#F5EFE8]'
                     }`}
                   >
                     {p}
@@ -551,7 +551,7 @@ export default function Orders() {
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={safePage === totalPages}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#EDE8E3] text-[#78716C] hover:text-[#1C1917] hover:border-[#A8A29E] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <HiChevronRight size={16} />
               </button>

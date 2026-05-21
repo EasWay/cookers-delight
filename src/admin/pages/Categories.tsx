@@ -214,7 +214,7 @@ export default function CategoriesPage() {
       {/* Page header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black">Categories</h1>
+          <h1 className="text-2xl font-black text-[#1C1917]">Categories</h1>
           {!loading && (
             <span
               className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
@@ -252,26 +252,29 @@ export default function CategoriesPage() {
           }
         />
       ) : (
-        <div className="bg-[#111] border border-white/8 rounded-2xl overflow-hidden">
+        <div
+          className="bg-white rounded-2xl overflow-hidden"
+          style={{ border: '1px solid #EDE8E3', boxShadow: '0 1px 3px rgba(28,25,23,0.06), 0 4px 12px rgba(28,25,23,0.04)' }}
+        >
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/8">
-                <th className="text-left px-5 py-3 text-xs font-bold text-white/30 uppercase tracking-widest w-24">
+              <tr style={{ borderBottom: '1px solid #F5EFE8' }}>
+                <th className="text-left px-5 py-3 text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest w-24">
                   #
                 </th>
-                <th className="text-left px-5 py-3 text-xs font-bold text-white/30 uppercase tracking-widest">
+                <th className="text-left px-5 py-3 text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest">
                   Name
                 </th>
-                <th className="text-left px-5 py-3 text-xs font-bold text-white/30 uppercase tracking-widest w-32">
+                <th className="text-left px-5 py-3 text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest w-32">
                   Status
                 </th>
-                <th className="text-right px-5 py-3 text-xs font-bold text-white/30 uppercase tracking-widest w-36">
+                <th className="text-right px-5 py-3 text-[10px] font-bold text-[#A8A29E] uppercase tracking-widest w-36">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody>
-              {categories.map((cat, idx) => {
+              {categories.map((cat) => {
                 const isEditingRow = editingId === cat.category_id;
                 const rowDirty = isDirty(cat);
                 const rowSaving = savingId === cat.category_id;
@@ -279,28 +282,27 @@ export default function CategoriesPage() {
                 return (
                   <tr
                     key={cat.category_id}
-                    className={`border-b border-white/5 last:border-0 transition-colors ${
-                      isEditingRow ? 'bg-white/[0.02]' : 'hover:bg-white/[0.015]'
+                    className={`last:border-0 transition-colors ${
+                      isEditingRow ? 'bg-[#FAFAF9]' : 'hover:bg-[#FAFAF9]'
                     }`}
+                    style={{ borderBottom: '1px solid #F5EFE8' }}
                   >
                     {/* Priority */}
                     <td className="px-5 py-3">
                       {isEditingRow ? (
                         <input
                           type="number"
-                          className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-sm focus:border-[#EC4824] focus:outline-none transition-colors"
+                          className="w-16 bg-[#FAFAFA] border border-[#EDE8E3] rounded-lg px-2 py-1 text-[#1C1917] text-sm focus:border-[#EC4824] focus:outline-none transition-colors"
                           value={draftValues.priority}
                           onChange={e =>
                             setDraftValues(prev => ({ ...prev, priority: e.target.value }))
                           }
-                          onBlur={() => {
-                            // priority blur save only if name is not actively edited
-                          }}
+                          onBlur={() => {}}
                         />
                       ) : (
                         <input
                           type="number"
-                          className="w-16 bg-transparent border border-transparent hover:border-white/10 rounded-lg px-2 py-1 text-white/60 text-sm focus:border-[#EC4824] focus:bg-white/5 focus:outline-none transition-colors"
+                          className="w-16 bg-transparent border border-transparent hover:border-[#EDE8E3] rounded-lg px-2 py-1 text-[#78716C] text-sm focus:border-[#EC4824] focus:bg-[#FAFAFA] focus:outline-none transition-colors"
                           defaultValue={cat.priority}
                           onFocus={e => e.currentTarget.select()}
                           onBlur={e => handlePriorityBlur(cat, e.target.value)}
@@ -314,7 +316,7 @@ export default function CategoriesPage() {
                       {isEditingRow ? (
                         <input
                           autoFocus
-                          className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-sm focus:border-[#EC4824] focus:outline-none transition-colors w-full max-w-xs"
+                          className="bg-[#FAFAFA] border border-[#EDE8E3] rounded-xl px-3 py-1.5 text-[#1C1917] text-sm focus:border-[#EC4824] focus:outline-none transition-colors w-full max-w-xs"
                           value={draftValues.name}
                           onChange={e =>
                             setDraftValues(prev => ({ ...prev, name: e.target.value }))
@@ -326,12 +328,12 @@ export default function CategoriesPage() {
                         />
                       ) : (
                         <button
-                          className="text-white/80 hover:text-white text-sm font-medium text-left transition-colors group flex items-center gap-2"
+                          className="text-[#1C1917] hover:text-[#EC4824] text-sm font-medium text-left transition-colors group flex items-center gap-2"
                           onClick={() => startEditing(cat)}
                           title="Click to edit name"
                         >
                           {cat.name}
-                          <span className="text-white/20 group-hover:text-white/40 transition-colors text-xs">
+                          <span className="text-[#A8A29E] group-hover:text-[#EC4824] transition-colors text-xs">
                             (edit)
                           </span>
                         </button>
@@ -354,7 +356,7 @@ export default function CategoriesPage() {
                             <button
                               onClick={() => saveRow(cat)}
                               disabled={!rowDirty || rowSaving}
-                              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#EC4824]/15 text-[#EC4824] hover:bg-[#EC4824]/25 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#FFF1EE] text-[#EC4824] hover:bg-[#EC482420] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                               title="Save"
                             >
                               {rowSaving ? <Spinner size={12} /> : <HiCheck size={14} />}
@@ -362,7 +364,7 @@ export default function CategoriesPage() {
                             </button>
                             <button
                               onClick={cancelEditing}
-                              className="p-1.5 rounded-lg text-white/30 hover:text-white hover:bg-white/8 transition-colors"
+                              className="p-1.5 rounded-lg text-[#A8A29E] hover:text-[#1C1917] hover:bg-[#F5EFE8] transition-colors"
                               title="Cancel"
                             >
                               <HiXMark size={16} />
@@ -376,7 +378,7 @@ export default function CategoriesPage() {
                         )}
                         <button
                           onClick={() => setConfirmDelete(cat.category_id)}
-                          className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-[#A8A29E] hover:text-red-500 hover:bg-red-50 transition-colors"
                           title="Delete"
                         >
                           <HiTrash size={16} />
@@ -421,7 +423,7 @@ export default function CategoriesPage() {
           </Field>
 
           <div className="flex items-center justify-between py-1">
-            <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Active</span>
+            <span className="text-xs font-bold text-[#78716C] uppercase tracking-widest">Active</span>
             <Toggle
               value={addForm.status}
               onChange={v => setAddForm(prev => ({ ...prev, status: v }))}
@@ -429,7 +431,7 @@ export default function CategoriesPage() {
           </div>
 
           {addError && (
-            <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-2">
               {addError}
             </p>
           )}
@@ -438,7 +440,7 @@ export default function CategoriesPage() {
             <button
               type="button"
               onClick={closeAdd}
-              className="px-4 py-2 text-sm text-white/50 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+              className="px-4 py-2 text-sm text-[#78716C] hover:text-[#1C1917] rounded-xl hover:bg-[#F5EFE8] transition-colors"
             >
               Cancel
             </button>

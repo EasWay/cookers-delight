@@ -141,8 +141,8 @@ function buildStatusDraft(s: OrderStatus): StatusDraft {
 function SectionHeader({ title, description }: { title: string; description?: string }) {
   return (
     <div className="mb-6">
-      <h2 className="text-lg font-black text-white">{title}</h2>
-      {description && <p className="text-sm text-white/40 mt-1">{description}</p>}
+      <h2 className="text-lg font-black text-[#1C1917]">{title}</h2>
+      {description && <p className="text-sm text-[#A8A29E] mt-1">{description}</p>}
     </div>
   );
 }
@@ -165,7 +165,7 @@ function ColorField({
     <Field label={label}>
       <div className="flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-xl border border-white/15 flex-shrink-0 relative overflow-hidden cursor-pointer"
+          className="w-10 h-10 rounded-xl border border-[#EDE8E3] flex-shrink-0 relative overflow-hidden cursor-pointer"
           style={{ backgroundColor: resolved }}
         >
           <input
@@ -310,7 +310,7 @@ function OrderConfigTab({
 
         <Card className="p-6 space-y-6">
           <div>
-            <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">Order Types</p>
+            <p className="text-xs font-bold text-[#78716C] uppercase tracking-widest mb-4">Order Types</p>
             <div className="space-y-4">
               {(
                 [
@@ -323,20 +323,20 @@ function OrderConfigTab({
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs text-white/35 mt-0.5">{description}</p>
+                      <p className="text-xs text-[#A8A29E] mt-0.5">{description}</p>
                     </div>
                     <Toggle
                       value={bool(settings[key])}
                       onChange={v => onChange(key, v ? '1' : '0')}
                     />
                   </div>
-                  {idx < arr.length - 1 && <div className="h-px bg-white/[0.06]" />}
+                  {idx < arr.length - 1 && <div className="h-px bg-[#EDE8E3]" />}
                 </React.Fragment>
               ))}
             </div>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-[#EDE8E3]" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Field label="Default Prep Time (minutes)">
@@ -442,12 +442,12 @@ function PrepTimesTab({
               <Spinner size={32} />
             </div>
           ) : menuItems.length === 0 ? (
-            <div className="px-6 py-10 text-center text-white/30 text-sm">No menu items found.</div>
+            <div className="px-6 py-10 text-center text-[#A8A29E] text-sm">No menu items found.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 text-white/30 text-xs uppercase tracking-widest font-bold">
+                  <tr className="border-b border-[#EDE8E3] text-[#A8A29E] text-xs uppercase tracking-widest font-bold">
                     <th className="px-5 py-3 text-left">Menu Item</th>
                     <th className="px-5 py-3 text-left w-44">Prep Time (minutes)</th>
                   </tr>
@@ -462,12 +462,12 @@ function PrepTimesTab({
                     return (
                       <tr
                         key={item.menu_id}
-                        className={`border-b border-white/5 last:border-0 transition-colors ${
+                        className={`border-b border-[#F5EFE8] last:border-0 transition-colors ${
                           changed ? 'bg-[#EC4824]/[0.04]' : ''
                         }`}
                       >
                         <td className="px-5 py-3.5">
-                          <span className="text-white/80">{item.menu_name}</span>
+                          <span className="text-[#1C1917]">{item.menu_name}</span>
                           {changed && (
                             <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#EC4824]/15 text-[#EC4824]">
                               edited
@@ -483,7 +483,7 @@ function PrepTimesTab({
                             onChange={e =>
                               onChangePrepTime(item.menu_id, Math.max(1, parseInt(e.target.value, 10) || 1))
                             }
-                            className="w-28 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm focus:border-[#EC4824] focus:outline-none transition-colors"
+                            className="w-28 bg-[#FAFAFA] border border-[#EDE8E3] rounded-lg px-3 py-1.5 text-[#1C1917] text-sm focus:border-[#EC4824] focus:outline-none transition-colors"
                           />
                         </td>
                       </tr>
@@ -533,12 +533,12 @@ function OrderStatusesTab({
               <Spinner size={32} />
             </div>
           ) : statuses.length === 0 ? (
-            <div className="px-6 py-10 text-center text-white/30 text-sm">No statuses found.</div>
+            <div className="px-6 py-10 text-center text-[#A8A29E] text-sm">No statuses found.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 text-white/30 text-xs uppercase tracking-widest font-bold">
+                  <tr className="border-b border-[#EDE8E3] text-[#A8A29E] text-xs uppercase tracking-widest font-bold">
                     <th className="px-5 py-3 text-left">Status Name</th>
                     <th className="px-5 py-3 text-left w-44">Color</th>
                     <th className="px-5 py-3 text-center w-36">Notify Customer</th>
@@ -553,7 +553,7 @@ function OrderStatusesTab({
                     return (
                       <tr
                         key={status.status_id}
-                        className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]"
+                        className="border-b border-[#F5EFE8] last:border-0 hover:bg-[#FAFAF9]"
                       >
                         {/* Name */}
                         <td className="px-5 py-3.5">
@@ -562,7 +562,7 @@ function OrderStatusesTab({
                             onChange={e =>
                               onChangeDraft(status.status_id, { status_name: e.target.value })
                             }
-                            className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm focus:border-[#EC4824] focus:outline-none w-40 transition-colors"
+                            className="bg-[#FAFAFA] border border-[#EDE8E3] rounded-lg px-3 py-1.5 text-[#1C1917] text-sm focus:border-[#EC4824] focus:outline-none w-40 transition-colors"
                           />
                         </td>
 
@@ -570,7 +570,7 @@ function OrderStatusesTab({
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2">
                             <div
-                              className="w-8 h-8 rounded-lg border border-white/15 flex-shrink-0 relative overflow-hidden cursor-pointer"
+                              className="w-8 h-8 rounded-lg border border-[#EDE8E3] flex-shrink-0 relative overflow-hidden cursor-pointer"
                               style={{ backgroundColor: d.status_color }}
                             >
                               <input
@@ -592,7 +592,7 @@ function OrderStatusesTab({
                                   onChangeDraft(status.status_id, { status_color: v });
                                 }
                               }}
-                              className="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:border-[#EC4824] focus:outline-none transition-colors"
+                              className="w-24 bg-[#FAFAFA] border border-[#EDE8E3] rounded-lg px-2 py-1.5 text-[#1C1917] text-xs font-mono focus:border-[#EC4824] focus:outline-none transition-colors"
                             />
                           </div>
                         </td>
@@ -618,7 +618,7 @@ function OrderStatusesTab({
                                 sort_order: parseInt(e.target.value, 10) || 0,
                               })
                             }
-                            className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm text-center focus:border-[#EC4824] focus:outline-none transition-colors mx-auto block"
+                            className="w-16 bg-[#FAFAFA] border border-[#EDE8E3] rounded-lg px-2 py-1.5 text-[#1C1917] text-sm text-center focus:border-[#EC4824] focus:outline-none transition-colors mx-auto block"
                           />
                         </td>
                       </tr>
@@ -689,7 +689,7 @@ function PaymentsTab({
               <button
                 type="button"
                 onClick={() => setShowSecret(s => !s)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A8A29E] hover:text-[#1C1917] transition-colors"
                 tabIndex={-1}
               >
                 {showSecret ? <HiEyeSlash size={16} /> : <HiEye size={16} />}
@@ -767,7 +767,7 @@ function NotificationsTab({
             </Field>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-[#EDE8E3]" />
 
           <div className="space-y-4">
             {(
@@ -781,19 +781,19 @@ function NotificationsTab({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-white">{label}</p>
-                    <p className="text-xs text-white/35 mt-0.5">{description}</p>
+                    <p className="text-xs text-[#A8A29E] mt-0.5">{description}</p>
                   </div>
                   <Toggle
                     value={bool(settings[key])}
                     onChange={v => onChange(key, v ? '1' : '0')}
                   />
                 </div>
-                {idx < arr.length - 1 && <div className="h-px bg-white/[0.06]" />}
+                {idx < arr.length - 1 && <div className="h-px bg-[#EDE8E3]" />}
               </React.Fragment>
             ))}
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-[#EDE8E3]" />
 
           <Field
             label="Low Stock Alert Threshold"
@@ -842,7 +842,7 @@ function AppearanceTab({
         <Card className="p-6 space-y-6">
           {/* Colors */}
           <div>
-            <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">Brand Colors</p>
+            <p className="text-xs font-bold text-[#78716C] uppercase tracking-widest mb-4">Brand Colors</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <ColorField
                 label="Brand Color"
@@ -859,7 +859,7 @@ function AppearanceTab({
             </div>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-[#EDE8E3]" />
 
           {/* URLs */}
           <div className="space-y-5">
@@ -883,14 +883,14 @@ function AppearanceTab({
             </Field>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-[#EDE8E3]" />
 
           {/* Display toggles */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">Show Announcement Bar</p>
-                <p className="text-xs text-white/35 mt-0.5">
+                <p className="text-xs text-[#A8A29E] mt-0.5">
                   Display the scrolling announcement banner on the public site
                 </p>
               </div>
@@ -900,7 +900,7 @@ function AppearanceTab({
               />
             </div>
 
-            <div className="h-px bg-white/[0.06]" />
+            <div className="h-px bg-[#EDE8E3]" />
 
             <div className="flex items-center justify-between">
               <div>
@@ -911,7 +911,7 @@ function AppearanceTab({
                     Enabling this will show a maintenance page to all visitors
                   </p>
                 ) : (
-                  <p className="text-xs text-white/35 mt-0.5">
+                  <p className="text-xs text-[#A8A29E] mt-0.5">
                     Take the site offline for maintenance
                   </p>
                 )}
@@ -1275,8 +1275,8 @@ export default function Settings() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-black">Settings</h1>
-        <p className="text-white/40 text-sm mt-0.5">Configure every aspect of your restaurant app</p>
+        <h1 className="text-2xl font-black text-[#1C1917]">Settings</h1>
+        <p className="text-[#A8A29E] text-sm mt-0.5">Configure every aspect of your restaurant app</p>
       </div>
 
       <div className="flex gap-6 items-start">
@@ -1293,8 +1293,8 @@ export default function Settings() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
                   isActive
-                    ? 'bg-[#EC4824]/15 text-[#EC4824]'
-                    : 'text-white/40 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#EC4824] text-white shadow-sm'
+                    : 'text-[#78716C] hover:text-[#1C1917] hover:bg-[#F5EFE8]'
                 }`}
               >
                 <span className="flex-shrink-0">{tab.icon}</span>

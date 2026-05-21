@@ -55,7 +55,7 @@ export default function TablesTab({ dateRange }: { dateRange: DateRange }) {
 
   const avgMinsLabel = avg_session_minutes > 0
     ? `${avg_session_minutes} min`
-    : '—';
+    : 'â€”';
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -77,9 +77,9 @@ export default function TablesTab({ dateRange }: { dateRange: DateRange }) {
 
       {/* Peak hours */}
       <Card>
-        <div className="px-5 py-4 border-b border-white/[0.06]">
+        <div className="px-5 py-4 border-b border-[#EDE8E3]">
           <h2 className="font-bold text-sm sm:text-base">Orders by Hour of Day</h2>
-          <p className="text-white/40 text-xs mt-0.5">Aggregated across the selected period</p>
+          <p className="text-[#78716C] text-xs mt-0.5">Aggregated across the selected period</p>
         </div>
         <div className="p-4 sm:p-6">
           <ResponsiveContainer width="100%" height={220}>
@@ -92,7 +92,7 @@ export default function TablesTab({ dateRange }: { dateRange: DateRange }) {
               <YAxis {...axisProps} width={32} allowDecimals={false} />
               <Tooltip
                 contentStyle={tooltipStyle}
-                labelFormatter={(h: number) => `${hourLabel(h)} — ${hourLabel(h + 1)}`}
+                labelFormatter={(h: number) => `${hourLabel(h)} â€” ${hourLabel(h + 1)}`}
               />
               <Bar dataKey="orders" name="Orders" fill={CHART_COLORS.primary} radius={[3, 3, 0, 0]} />
             </BarChart>
@@ -103,7 +103,7 @@ export default function TablesTab({ dateRange }: { dateRange: DateRange }) {
       {/* Peak days */}
       {peak_days.length > 0 && (
         <Card>
-          <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="px-5 py-4 border-b border-[#EDE8E3]">
             <h2 className="font-bold text-sm sm:text-base">Orders by Day of Week</h2>
           </div>
           <div className="p-4 sm:p-6">

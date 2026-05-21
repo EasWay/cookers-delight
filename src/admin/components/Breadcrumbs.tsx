@@ -22,7 +22,7 @@ export default function Breadcrumbs() {
     <nav aria-label="Breadcrumb" className="flex items-center text-[11px] font-medium min-w-0">
       <Link
         to="/admin/dashboard"
-        className="flex items-center gap-1 text-white/40 hover:text-white transition-colors flex-shrink-0"
+        className="flex items-center gap-1 text-[#A8A29E] hover:text-[#1C1917] transition-colors flex-shrink-0"
       >
         <HiHome size={11} />
         <span className="hidden sm:inline">Admin</span>
@@ -31,14 +31,14 @@ export default function Breadcrumbs() {
       {section && (
         <>
           <Chev />
-          <span className="text-white/40 truncate">{section.label}</span>
+          <span className="text-[#A8A29E] truncate">{section.label}</span>
         </>
       )}
 
       {item && (
         <>
           <Chev />
-          <span className="text-white/90 truncate">{item.short ?? item.label}</span>
+          <span className="text-[#1C1917] font-semibold truncate">{item.short ?? item.label}</span>
         </>
       )}
     </nav>
@@ -46,5 +46,5 @@ export default function Breadcrumbs() {
 }
 
 function Chev() {
-  return <HiChevronRight size={11} className="mx-1.5 text-white/20 flex-shrink-0" />;
+  return <HiChevronRight size={11} className="mx-1.5 text-[#EDE8E3] flex-shrink-0" />;
 }

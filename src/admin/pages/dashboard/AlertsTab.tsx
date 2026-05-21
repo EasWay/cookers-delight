@@ -34,7 +34,7 @@ export default function AlertsTab() {
       <Card>
         <EmptyState
           icon={<HiBell size={48} />}
-          title="All clear — no active alerts"
+          title="All clear â€” no active alerts"
         />
       </Card>
     );
@@ -68,7 +68,7 @@ export default function AlertsTab() {
                   {alert.severity}
                 </span>
               </div>
-              <p className="text-sm text-white/80 leading-relaxed">{alert.message}</p>
+              <p className="text-sm text-[#1C1917] leading-relaxed">{alert.message}</p>
             </div>
           </Card>
         );

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from './AdminAuthContext';
+import { inputClass } from './components/ui';
 
-const MAX_ATTEMPTS  = 5;
-const LOCKOUT_MS    = 5 * 60 * 1000; // 5 minutes
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS   = 5 * 60 * 1000;
 
 export default function AdminLogin() {
   const { login, loading, token } = useAdminAuth();
@@ -12,19 +13,14 @@ export default function AdminLogin() {
   const [password, setPassword]   = useState('');
   const [error, setError]         = useState('');
 
-  // If the user is already authenticated (token survived a reload), skip
-  // the login form entirely.
   useEffect(() => {
     if (token) navigate('/admin/dashboard', { replace: true });
   }, [token, navigate]);
 
-  // SECURITY: Track failed login attempts to prevent brute-force attacks.
-  // After MAX_ATTEMPTS failures within LOCKOUT_MS the form is disabled.
-  const failCount    = useRef(0);
-  const lockedUntil  = useRef<number>(0);
+  const failCount   = useRef(0);
+  const lockedUntil = useRef<number>(0);
 
   const isLocked = () => Date.now() < lockedUntil.current;
-
   const lockoutSecondsRemaining = () =>
     Math.ceil((lockedUntil.current - Date.now()) / 1000);
 
@@ -39,11 +35,10 @@ export default function AdminLogin() {
 
     try {
       await login(email, password);
-      failCount.current = 0; // reset on success
+      failCount.current = 0;
       navigate('/admin/dashboard', { replace: true });
     } catch (err: unknown) {
       failCount.current += 1;
-
       if (failCount.current >= MAX_ATTEMPTS) {
         lockedUntil.current = Date.now() + LOCKOUT_MS;
         failCount.current   = 0;
@@ -57,56 +52,97 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="admin-panel min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+    <div
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ backgroundColor: '#FFFBF7', fontFamily: 'Syne, system-ui, sans-serif' }}
+    >
       <div className="w-full max-w-sm">
-        <div className="mb-10 text-center">
-          <span className="text-3xl font-black tracking-tight">
+        {/* Logo */}
+        <div className="mb-8 text-center">
+          <div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+            style={{
+              background: 'linear-gradient(135deg, #EC4824, #d4401f)',
+              boxShadow: '0 8px 24px rgba(236,72,36,0.25)',
+            }}
+          >
+            <span className="text-2xl text-white font-black">CD</span>
+          </div>
+          <h1 className="text-2xl font-black text-[#1C1917]">
             Cookers<span className="text-[#EC4824]">Delight</span>
-          </span>
-          <p className="text-white/30 text-sm mt-2 uppercase tracking-widest font-bold">Admin Panel</p>
+          </h1>
+          <p className="text-xs text-[#A8A29E] mt-1 uppercase tracking-widest font-bold">
+            Admin Console
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Card */}
+        <div
+          className="bg-white rounded-2xl p-6 space-y-5"
+          style={{
+            border: '1px solid #EDE8E3',
+            boxShadow: '0 4px 20px rgba(28,25,23,0.08), 0 1px 4px rgba(28,25,23,0.06)',
+          }}
+        >
+          <div>
+            <h2 className="text-lg font-bold text-[#1C1917]">Welcome back</h2>
+            <p className="text-sm text-[#78716C] mt-0.5">Sign in to your admin panel</p>
+          </div>
+
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
               {error}
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#EC4824] focus:outline-none transition-colors"
-              placeholder="admin@cookersdelight.com"
-              autoComplete="username"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#78716C] uppercase tracking-widest">
+                Email address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="admin@cookersdelight.com"
+                autoComplete="username"
+              />
+            </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#EC4824] focus:outline-none transition-colors"
-              placeholder="••••••••"
-              autoComplete="current-password"
-            />
-          </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#78716C] uppercase tracking-widest">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className={inputClass}
+                placeholder="••••••••"
+                autoComplete="current-password"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading || isLocked()}
-            className="w-full bg-[#EC4824] text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#d4401f] disabled:opacity-50 transition-colors mt-2"
-          >
-            {loading ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading || isLocked()}
+              className="w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.98] disabled:opacity-50"
+              style={{
+                backgroundColor: '#EC4824',
+                boxShadow: '0 4px 12px rgba(236,72,36,0.3)',
+              }}
+            >
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-xs text-[#A8A29E] mt-6">
+          Cookers Delight · Kaneshie, Opposite Cocoa Clinic
+        </p>
       </div>
     </div>
   );

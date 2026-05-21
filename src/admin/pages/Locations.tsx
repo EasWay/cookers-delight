@@ -130,18 +130,18 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
   return (
     <Card className="flex flex-col">
       {/* Card header */}
-      <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-white/8">
+      <div className="flex items-start justify-between gap-3 px-5 py-4" style={{ borderBottom: '1px solid #EDE8E3' }}>
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-[#EC4824]/15 text-[#EC4824] flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#FFF1EE] text-[#EC4824] flex items-center justify-center flex-shrink-0">
             <HiBuildingStorefront size={18} />
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-white truncate">{location.location_name}</p>
+            <p className="font-bold text-[#1C1917] truncate">{location.location_name}</p>
             <div className="mt-0.5">
               {isActive(location) ? (
-                <Badge color="#22c55e">Active</Badge>
+                <Badge color="#16A34A">Active</Badge>
               ) : (
-                <Badge color="#6b7280">Inactive</Badge>
+                <Badge color="#78716C">Inactive</Badge>
               )}
             </div>
           </div>
@@ -150,7 +150,7 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
         <div className="flex items-center gap-3 flex-shrink-0">
           {/* Open Now toggle */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-white/40 hidden sm:block">Open Now</span>
+            <span className="text-xs text-[#A8A29E] hidden sm:block">Open Now</span>
             {togglingOpen ? (
               <Spinner size={16} />
             ) : (
@@ -162,7 +162,7 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
           {!editing ? (
             <button
               onClick={startEdit}
-              className="flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-bold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-lg bg-[#F5EFE8] hover:bg-[#EDE8E3] transition-colors"
             >
               <HiPencil size={13} />
               Edit
@@ -170,7 +170,7 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
           ) : (
             <button
               onClick={discardEdit}
-              className="flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-bold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-lg bg-[#F5EFE8] hover:bg-[#EDE8E3] transition-colors"
             >
               <HiXMark size={14} />
               Cancel
@@ -182,7 +182,7 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
       {/* Card body */}
       <div className="px-5 py-4 flex-1 space-y-4">
         {saveError && (
-          <div className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5">
+          <div className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
             {saveError}
           </div>
         )}
@@ -227,21 +227,21 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
           /* Read-only display */
           <div className="space-y-3">
             <div className="flex items-start gap-3 text-sm">
-              <HiMapPin size={15} className="text-white/30 mt-0.5 flex-shrink-0" />
-              <span className="text-white/70">
-                {location.location_address_1 || <span className="text-white/25 italic">No address</span>}
+              <HiMapPin size={15} className="text-[#A8A29E] mt-0.5 flex-shrink-0" />
+              <span className="text-[#78716C]">
+                {location.location_address_1 || <span className="text-[#A8A29E] italic">No address</span>}
               </span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <HiPhone size={15} className="text-white/30 flex-shrink-0" />
-              <span className="text-white/70">
-                {location.location_telephone || <span className="text-white/25 italic">No phone</span>}
+              <HiPhone size={15} className="text-[#A8A29E] flex-shrink-0" />
+              <span className="text-[#78716C]">
+                {location.location_telephone || <span className="text-[#A8A29E] italic">No phone</span>}
               </span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <HiEnvelope size={15} className="text-white/30 flex-shrink-0" />
-              <span className="text-white/70">
-                {location.location_email || <span className="text-white/25 italic">No email</span>}
+              <HiEnvelope size={15} className="text-[#A8A29E] flex-shrink-0" />
+              <span className="text-[#78716C]">
+                {location.location_email || <span className="text-[#A8A29E] italic">No email</span>}
               </span>
             </div>
           </div>
@@ -251,13 +251,14 @@ function LocationCard({ location, onUpdated }: LocationCardProps) {
       {/* Per-card save bar — shown when editing and dirty */}
       {editing && (
         <div
-          className={`px-5 py-3 border-t border-white/8 flex items-center justify-between gap-4 transition-opacity ${dirty ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}
+          className={`px-5 py-3 flex items-center justify-between gap-4 transition-opacity ${dirty ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}
+          style={{ borderTop: '1px solid #EDE8E3' }}
         >
-          <span className="text-xs text-white/40">Unsaved changes</span>
+          <span className="text-xs text-[#A8A29E]">Unsaved changes</span>
           <div className="flex gap-2">
             <button
               onClick={discardEdit}
-              className="text-xs text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
+              className="text-xs text-[#A8A29E] hover:text-[#1C1917] transition-colors px-3 py-1.5 rounded-lg hover:bg-[#F5EFE8]"
             >
               Discard
             </button>
@@ -315,9 +316,9 @@ export default function Locations() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black">Locations</h1>
+        <h1 className="text-2xl font-black text-[#1C1917]">Locations</h1>
         {!loading && (
-          <p className="text-white/40 text-sm mt-0.5">
+          <p className="text-[#A8A29E] text-sm mt-0.5">
             {locations.length} {locations.length === 1 ? 'branch' : 'branches'}
           </p>
         )}
@@ -329,7 +330,7 @@ export default function Locations() {
           <Spinner size={36} />
         </div>
       ) : error ? (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-5 py-4 text-red-400 text-sm">
+        <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4 text-red-600 text-sm">
           {error}
         </div>
       ) : locations.length === 0 ? (

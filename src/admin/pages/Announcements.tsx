@@ -225,9 +225,9 @@ export default function Announcements() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black">Announcements</h1>
+          <h1 className="text-2xl font-black text-[#1C1917]">Announcements</h1>
           {!loading && (
-            <p className="text-white/40 text-sm mt-0.5">
+            <p className="text-[#A8A29E] text-sm mt-0.5">
               {announcements.length} {announcements.length === 1 ? 'announcement' : 'announcements'}
             </p>
           )}
@@ -247,7 +247,7 @@ export default function Announcements() {
           <Spinner size={36} />
         </div>
       ) : error ? (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-5 py-4 text-red-400 text-sm">
+        <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4 text-red-600 text-sm">
           {error}
         </div>
       ) : announcements.length === 0 ? (
@@ -279,19 +279,19 @@ export default function Announcements() {
                   <div className="flex-1 min-w-0 space-y-2">
                     {/* Title + status */}
                     <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="font-bold text-white">{a.title}</h3>
+                      <h3 className="font-bold text-[#1C1917]">{a.title}</h3>
                       <Badge color={badgeColor}>{status}</Badge>
                     </div>
 
                     {/* Description */}
                     {a.description && (
-                      <p className="text-sm text-white/50 leading-relaxed line-clamp-2">
+                      <p className="text-sm text-[#78716C] leading-relaxed line-clamp-2">
                         {a.description}
                       </p>
                     )}
 
                     {/* Date range */}
-                    <div className="flex items-center gap-1.5 text-xs text-white/30">
+                    <div className="flex items-center gap-1.5 text-xs text-[#A8A29E]">
                       <HiCalendarDays size={13} />
                       {startLabel && endLabel ? (
                         <span>From {startLabel} to {endLabel}</span>
@@ -309,7 +309,7 @@ export default function Announcements() {
                   <div className="flex flex-col items-end justify-between gap-3 flex-shrink-0">
                     {/* Active toggle */}
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-white/30 hidden sm:block">Active</span>
+                      <span className="text-xs text-[#A8A29E] hidden sm:block">Active</span>
                       {isToggling ? (
                         <Spinner size={16} />
                       ) : (
@@ -324,14 +324,14 @@ export default function Announcements() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => openEdit(a)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-bold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-lg bg-[#F5EFE8] hover:bg-[#EDE8E3] transition-colors"
                       >
                         <HiPencil size={13} />
                         <span className="hidden sm:inline">Edit</span>
                       </button>
                       <button
                         onClick={() => setDeleteTarget(a)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-600 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors"
                       >
                         <HiTrash size={13} />
                         <span className="hidden sm:inline">Delete</span>
@@ -354,7 +354,7 @@ export default function Announcements() {
       >
         <form onSubmit={handleSave} className="space-y-5">
           {formError && (
-            <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+            <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3">
               {formError}
             </div>
           )}
@@ -404,7 +404,7 @@ export default function Announcements() {
               value={form.status}
               onChange={val => setForm(f => ({ ...f, status: val }))}
             />
-            <span className="text-sm text-white/60">
+            <span className="text-sm text-[#78716C]">
               {form.status ? 'Active' : 'Inactive'}
             </span>
           </div>
@@ -413,7 +413,7 @@ export default function Announcements() {
             <button
               type="button"
               onClick={closeModal}
-              className="px-4 py-2 text-sm text-white/50 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+              className="px-4 py-2 text-sm text-[#78716C] hover:text-[#1C1917] rounded-lg hover:bg-[#F5EFE8] transition-colors"
             >
               Cancel
             </button>

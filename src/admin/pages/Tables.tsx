@@ -265,9 +265,9 @@ export default function Tables() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black">Tables &amp; QR Codes</h1>
+          <h1 className="text-2xl font-black text-[#1C1917]">Tables &amp; QR Codes</h1>
           {!loading && (
-            <p className="text-white/40 text-sm mt-0.5">
+            <p className="text-[#A8A29E] text-sm mt-0.5">
               {totalTables} tables · {occupiedCount} occupied
             </p>
           )}
@@ -294,7 +294,7 @@ export default function Tables() {
                 className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${
                   active
                     ? 'bg-[#EC4824] text-white'
-                    : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
+                    : 'bg-[#F5EFE8] text-[#78716C] hover:bg-[#EDE8E3] hover:text-[#1C1917]'
                 }`}
               >
                 {label}
@@ -310,7 +310,7 @@ export default function Tables() {
           <Spinner size={36} />
         </div>
       ) : error ? (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-5 py-4 text-red-400 text-sm">
+        <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4 text-red-600 text-sm">
           {error}
         </div>
       ) : allTables.length === 0 ? (
@@ -333,21 +333,21 @@ export default function Tables() {
             return (
               <Card key={table.table_id} className="p-5 flex flex-col gap-4">
                 {/* Table number */}
-                <div className="flex flex-col items-center text-center pb-3 border-b border-white/8">
-                  <p className="text-xs text-white/30 uppercase tracking-widest font-bold mb-1">Table</p>
-                  <p className="text-5xl font-black text-white leading-none">{table.table_number}</p>
+                <div className="flex flex-col items-center text-center pb-3" style={{ borderBottom: '1px solid #EDE8E3' }}>
+                  <p className="text-xs text-[#A8A29E] uppercase tracking-widest font-bold mb-1">Table</p>
+                  <p className="text-5xl font-black text-[#1C1917] leading-none">{table.table_number}</p>
                   {multipleLocations && (
-                    <p className="text-xs text-white/40 mt-1.5">{table.location_name}</p>
+                    <p className="text-xs text-[#A8A29E] mt-1.5">{table.location_name}</p>
                   )}
                 </div>
 
                 {/* Meta row */}
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1.5 text-white/50">
+                  <span className="flex items-center gap-1.5 text-[#78716C]">
                     <HiUser size={14} />
                     {table.capacity} seats
                   </span>
-                  <span className="font-mono text-xs text-white/25 bg-white/5 px-2 py-0.5 rounded">
+                  <span className="font-mono text-xs text-[#A8A29E] bg-[#F5EFE8] px-2 py-0.5 rounded">
                     {(table.stable_token ?? '').slice(0, 8) || '—'}
                   </span>
                 </div>
@@ -357,17 +357,17 @@ export default function Tables() {
                   {occupied ? (
                     <Badge color="#EC4824">Occupied</Badge>
                   ) : (
-                    <Badge color="#22c55e">Available</Badge>
+                    <Badge color="#16A34A">Available</Badge>
                   )}
                   {occupied && table.active_session && (
                     <div className="text-right">
                       {table.active_session.order_id && (
-                        <p className="text-xs text-white/50">
+                        <p className="text-xs text-[#78716C]">
                           Order #{table.active_session.order_id}
                         </p>
                       )}
                       {table.active_session.amount !== undefined && (
-                        <p className="text-xs font-bold text-white/70">
+                        <p className="text-xs font-bold text-[#1C1917]">
                           GH₵{table.active_session.amount}
                         </p>
                       )}
@@ -379,7 +379,7 @@ export default function Tables() {
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={() => handlePrintQr(table.table_id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg bg-[#F5EFE8] hover:bg-[#EDE8E3] text-[#78716C] hover:text-[#1C1917] transition-colors"
                   >
                     <HiQrCode size={14} />
                     Print QR
@@ -387,7 +387,7 @@ export default function Tables() {
                   {!occupied && (
                     <button
                       onClick={() => setDeleteTarget(table)}
-                      className="flex items-center justify-center gap-1.5 text-xs font-bold py-2 px-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold py-2 px-3 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
                     >
                       <HiTrash size={14} />
                     </button>
@@ -403,7 +403,7 @@ export default function Tables() {
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add Table" size="sm">
         <form onSubmit={handleAdd} className="space-y-5">
           {addError && (
-            <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+            <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3">
               {addError}
             </div>
           )}
@@ -454,7 +454,7 @@ export default function Tables() {
             <button
               type="button"
               onClick={() => setAddOpen(false)}
-              className="px-4 py-2 text-sm text-white/50 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+              className="px-4 py-2 text-sm text-[#78716C] hover:text-[#1C1917] rounded-lg hover:bg-[#F5EFE8] transition-colors"
             >
               Cancel
             </button>

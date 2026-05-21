@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { getPresetRange, type DatePreset, type DateRange } from './dashboard/types';
-import { inputClass } from '../components/ui';
 import { dashboardApi } from '../api';
 import OverviewTab   from './dashboard/OverviewTab';
 import RevenueTab    from './dashboard/RevenueTab';
@@ -13,14 +12,14 @@ import AlertsTab     from './dashboard/AlertsTab';
 // ─── Shared helpers (re-exported for tab components) ─────────────────────────
 
 export const STATUS_COLORS: Record<string, string> = {
-  Pending:    '#eab308',
-  New:        '#eab308',
+  Pending:    '#d97706',
+  New:        '#d97706',
   Preparing:  '#EC4824',
   Processing: '#EC4824',
-  Ready:      '#22c55e',
-  Delivered:  '#22c55e',
-  Completed:  '#22c55e',
-  Served:     '#6b7280',
+  Ready:      '#16A34A',
+  Delivered:  '#16A34A',
+  Completed:  '#16A34A',
+  Served:     '#78716C',
   Cancelled:  '#ef4444',
 };
 
@@ -119,8 +118,8 @@ export default function Dashboard() {
     <div className="space-y-5 lg:space-y-6 min-w-0">
       {/* Page header */}
       <div>
-        <h1 className="text-lg sm:text-xl lg:text-2xl font-black">Dashboard</h1>
-        <p className="text-white/40 text-[11px] sm:text-sm mt-0.5">
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-[#1C1917]">Dashboard</h1>
+        <p className="text-[#A8A29E] text-[11px] sm:text-sm mt-0.5">
           Analytics &amp; live overview
         </p>
       </div>
@@ -131,11 +130,12 @@ export default function Dashboard() {
           <button
             key={p.id}
             onClick={() => applyPreset(p.id)}
-            className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-colors ${
+            className="text-xs px-3 py-1.5 rounded-lg font-bold transition-colors"
+            style={
               preset === p.id
-                ? 'bg-[#EC4824] text-white'
-                : 'bg-white/[0.06] text-white/50 hover:text-white hover:bg-white/10'
-            }`}
+                ? { backgroundColor: '#EC4824', color: '#fff' }
+                : { backgroundColor: '#F5EFE8', color: '#78716C' }
+            }
           >
             {p.label}
           </button>
@@ -147,19 +147,20 @@ export default function Dashboard() {
             type="date"
             value={customFrom}
             onChange={e => setCustomFrom(e.target.value)}
-            className={`${inputClass} !py-1.5 !text-xs w-36`}
+            className="bg-white border border-[#EDE8E3] rounded-lg px-3 py-1.5 text-xs text-[#1C1917] focus:border-[#EC4824] focus:outline-none transition-colors w-36"
           />
-          <span className="text-white/30 text-xs">—</span>
+          <span className="text-[#A8A29E] text-xs">—</span>
           <input
             type="date"
             value={customTo}
             onChange={e => setCustomTo(e.target.value)}
-            className={`${inputClass} !py-1.5 !text-xs w-36`}
+            className="bg-white border border-[#EDE8E3] rounded-lg px-3 py-1.5 text-xs text-[#1C1917] focus:border-[#EC4824] focus:outline-none transition-colors w-36"
           />
           <button
             onClick={applyCustom}
             disabled={!customFrom || !customTo}
-            className="text-xs px-3 py-1.5 rounded-lg font-bold bg-white/[0.06] text-white/50 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors"
+            className="text-xs px-3 py-1.5 rounded-lg font-bold disabled:opacity-30 transition-colors"
+            style={{ backgroundColor: '#F5EFE8', color: '#78716C' }}
           >
             Apply
           </button>
@@ -167,22 +168,22 @@ export default function Dashboard() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 border-b border-white/[0.06] overflow-x-auto pb-0 scrollbar-hide">
+      <div className="flex gap-1 overflow-x-auto pb-0 scrollbar-hide" style={{ borderBottom: '1px solid #EDE8E3' }}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-shrink-0 inline-flex items-center gap-1 text-sm px-4 py-2.5 font-bold border-b-2 transition-colors ${
+            className={`flex-shrink-0 inline-flex items-center gap-1.5 text-sm px-4 py-2.5 font-bold border-b-2 transition-colors ${
               activeTab === tab.id
-                ? 'border-[#EC4824] text-white'
-                : 'border-transparent text-white/40 hover:text-white/70'
+                ? 'border-[#EC4824] text-[#EC4824]'
+                : 'border-transparent text-[#A8A29E] hover:text-[#78716C]'
             }`}
           >
             {tab.label}
             {tab.id === 'alerts' && alertCount > 0 && (
               <span
                 className="w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center"
-                style={{ backgroundColor: hasCritical ? '#ef4444' : '#eab308', color: '#fff' }}
+                style={{ backgroundColor: hasCritical ? '#ef4444' : '#d97706', color: '#fff' }}
               >
                 {alertCount > 9 ? '9+' : alertCount}
               </span>

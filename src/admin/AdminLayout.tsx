@@ -3,7 +3,8 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
   HiBars3,
   HiArrowRightOnRectangle,
-  HiUser,
+  HiBell,
+  HiXMark,
 } from 'react-icons/hi2';
 import { useAdminAuth } from './AdminAuthContext';
 import { navSections } from './adminNav';
@@ -14,38 +15,55 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/admin/login');
-  };
+  const initials = user?.name
+    ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'CD';
 
-  // Compact, tightly-spaced nav row — small icon, small text, generous
-  // hit-target via vertical padding only. Active state uses the brand
-  // accent with a subtle pill so the eye lands on it without shouting.
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+    `flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
       isActive
-        ? 'bg-[#EC4824]/12 text-[#EC4824]'
-        : 'text-white/45 hover:text-white hover:bg-white/[0.04]'
+        ? 'bg-[#EC4824] text-white shadow-sm'
+        : 'text-[#78716C] hover:text-[#1C1917] hover:bg-[#F5EFE8]'
     }`;
 
-  const Sidebar = () => (
-    <aside className="w-56 flex-shrink-0 bg-[#0a0a0a] border-r border-white/[0.06] flex flex-col h-full">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
       {/* Brand */}
-      <div className="px-5 py-4 border-b border-white/[0.06]">
-        <span className="text-base font-black tracking-tight leading-none block">
+      <div className="px-5 pt-5 pb-4 flex items-center justify-between">
+        <span className="text-lg font-black tracking-tight leading-none">
           Cookers<span className="text-[#EC4824]">Delight</span>
         </span>
-        <p className="text-[9px] text-white/25 uppercase tracking-[0.18em] font-bold mt-1">
-          Admin Console
-        </p>
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-[#78716C] hover:bg-[#F5EFE8] transition-colors"
+        >
+          <HiXMark size={18} />
+        </button>
       </div>
+      <div className="h-px bg-[#EDE8E3] mx-4" />
+
+      {/* Profile section */}
+      <div className="px-4 py-4 flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg, #EC4824, #d4401f)' }}
+        >
+          {initials}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-[#1C1917] truncate leading-tight">
+            {user?.name ?? 'Admin'}
+          </p>
+          <p className="text-[11px] text-[#A8A29E] truncate">Administrator</p>
+        </div>
+      </div>
+      <div className="h-px bg-[#EDE8E3] mx-4 mb-2" />
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-3.5">
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
         {navSections.map((section) => (
           <div key={section.label}>
-            <p className="text-[9px] font-bold text-white/25 uppercase tracking-[0.15em] px-2.5 mb-1">
+            <p className="text-[9px] font-bold text-[#A8A29E] uppercase tracking-[0.18em] px-3 mb-1.5">
               {section.label}
             </p>
             <div className="space-y-0.5">
@@ -56,7 +74,7 @@ export default function AdminLayout() {
                   className={linkClass}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  {item.icon}
+                  <span className="flex-shrink-0">{item.icon}</span>
                   <span className="truncate">{item.label}</span>
                 </NavLink>
               ))}
@@ -65,77 +83,79 @@ export default function AdminLayout() {
         ))}
       </nav>
 
-      {/* User footer */}
-      <div className="px-2.5 py-3 border-t border-white/[0.06]">
-        <div className="flex items-center gap-2.5 px-2.5 py-1.5 mb-0.5">
-          <div className="w-7 h-7 rounded-full bg-[#EC4824]/15 flex items-center justify-center text-[#EC4824] flex-shrink-0">
-            <HiUser size={13} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-bold text-white truncate leading-tight">
-              {user?.name ?? 'Admin'}
-            </p>
-            <p className="text-[10px] text-white/30 truncate">{user?.email}</p>
-          </div>
-        </div>
+      {/* Sign out */}
+      <div className="p-3 border-t border-[#EDE8E3]">
         <button
-          onClick={handleLogout}
-          className="flex items-center gap-2.5 px-2.5 py-1.5 w-full rounded-lg text-[12px] text-white/40 hover:text-red-400 hover:bg-red-500/5 transition-all"
+          onClick={() => { logout(); navigate('/admin/login'); }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-[#EC4824] hover:bg-[#FFF1EE] transition-colors"
         >
-          <HiArrowRightOnRectangle size={15} />
-          <span>Sign out</span>
+          <HiArrowRightOnRectangle size={16} />
+          <span>Sign Out</span>
         </button>
       </div>
-    </aside>
+    </div>
   );
 
   return (
-    <div className="admin-panel min-h-screen bg-[#0d0d0d] text-white flex">
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ backgroundColor: '#FFFBF7', fontFamily: 'Syne, system-ui, sans-serif' }}
+    >
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex">
-        <Sidebar />
-      </div>
+      <aside
+        className="hidden lg:flex flex-col w-[240px] flex-shrink-0 bg-white"
+        style={{ borderRight: '1px solid #EDE8E3' }}
+      >
+        <SidebarContent />
+      </aside>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative z-10 w-56">
-            <Sidebar />
-          </div>
+          <aside className="relative w-[240px] flex-shrink-0 bg-white flex flex-col h-full shadow-2xl">
+            <SidebarContent />
+          </aside>
         </div>
       )}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Topbar — breadcrumb trail on the left, live indicator on the right */}
-        <header className="h-11 border-b border-white/[0.06] flex items-center px-5 gap-3 flex-shrink-0 bg-[#0a0a0a]">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top bar */}
+        <header
+          className="flex-shrink-0 bg-white px-4 sm:px-6 py-3.5 flex items-center gap-4"
+          style={{ borderBottom: '1px solid #EDE8E3' }}
+        >
           <button
-            className="lg:hidden text-white/50 hover:text-white -ml-1 p-1"
-            aria-label="Open menu"
             onClick={() => setSidebarOpen(true)}
+            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl text-[#78716C] hover:bg-[#F5EFE8] transition-colors"
           >
             <HiBars3 size={20} />
           </button>
-
           <div className="flex-1 min-w-0">
             <Breadcrumbs />
           </div>
-
-          <div className="flex items-center gap-1.5 text-[10px] text-white/35 font-bold uppercase tracking-[0.15em] flex-shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Live
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button className="w-9 h-9 flex items-center justify-center rounded-xl text-[#78716C] hover:bg-[#F5EFE8] transition-colors">
+              <HiBell size={18} />
+            </button>
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #EC4824, #d4401f)' }}
+            >
+              {initials}
+            </div>
           </div>
         </header>
 
-        {/* Page content — aggressive mobile padding, breathes on desktop. */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-3.5 sm:p-5 lg:p-6">
+        {/* Page content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
