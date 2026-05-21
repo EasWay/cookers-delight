@@ -96,10 +96,10 @@
     font-size: 1rem;
   }
 
-  /* Global Dropdown Fix: admin panel keeps dark selects; public site overrides per-component */
+  /* Global Dropdown Fix: admin panel light theme selects */
   .admin-panel select, .admin-panel option {
-    background-color: #111111 !important;
-    color: white !important;
+    background-color: #FAFAFA !important;
+    color: #1C1917 !important;
   }
 
   select {
