@@ -53,6 +53,293 @@ interface AddTableForm {
   capacity: string;
 }
 
+type ViewMode = 'grid' | 'list';
+
+// ─── TableShape ───────────────────────────────────────────────────────────────
+
+function TableShape({
+  table,
+  selected,
+  onSelect,
+}: {
+  table: Table & { location_name: string };
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const occupied  = table.active_session !== null;
+  const cap       = Math.min(table.capacity, 8);
+
+  const topChairs    = cap <= 2 ? 1 : cap <= 4 ? 2 : cap <= 6 ? 2 : 3;
+  const bottomChairs = topChairs;
+  const leftChairs   = cap >= 6 ? 1 : 0;
+  const rightChairs  = cap >= 6 ? 1 : 0;
+
+  const tableColor  = occupied ? '#EC4824' : '#16A34A';
+  const tableBg     = occupied ? 'rgba(236,72,36,0.10)' : 'rgba(22,163,74,0.10)';
+  const chairColor  = occupied ? 'rgba(236,72,36,0.30)' : 'rgba(22,163,74,0.25)';
+  const chairBorder = occupied ? 'rgba(236,72,36,0.55)' : 'rgba(22,163,74,0.55)';
+
+  function Chair({ horizontal }: { horizontal: boolean }) {
+    return (
+      <div
+        className="rounded"
+        style={{
+          width:           horizontal ? 16 : 10,
+          height:          horizontal ? 10 : 16,
+          backgroundColor: chairColor,
+          border:          `1.5px solid ${chairBorder}`,
+        }}
+      />
+    );
+  }
+
+  function ChairRow({ count }: { count: number }) {
+    return (
+      <div className="flex items-center justify-center gap-2">
+        {Array.from({ length: count }).map((_, i) => (
+          <Chair key={i} horizontal />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={onSelect}
+      className="flex flex-col items-center gap-1.5 cursor-pointer group"
+      style={{ userSelect: 'none' }}
+    >
+      <ChairRow count={topChairs} />
+
+      <div className="flex items-center gap-1.5">
+        {leftChairs > 0 && <Chair horizontal={false} />}
+
+        <div
+          className="rounded-xl flex flex-col items-center justify-center transition-all"
+          style={{
+            width:           cap <= 2 ? 64 : cap <= 4 ? 80 : 90,
+            height:          cap <= 2 ? 44 : 52,
+            backgroundColor: selected ? tableColor : tableBg,
+            border:          `2px solid ${tableColor}`,
+            boxShadow:       selected
+              ? `0 0 0 3px ${tableColor}30, 0 4px 12px ${tableColor}25`
+              : `0 2px 6px rgba(0,0,0,0.1)`,
+          }}
+        >
+          <span
+            className="font-black leading-none text-xl"
+            style={{ color: selected ? '#fff' : tableColor }}
+          >
+            {table.table_number}
+          </span>
+          <span
+            className="text-[9px] font-bold mt-0.5 uppercase tracking-wider"
+            style={{ color: selected ? 'rgba(255,255,255,0.7)' : `${tableColor}90` }}
+          >
+            {cap}P
+          </span>
+        </div>
+
+        {rightChairs > 0 && <Chair horizontal={false} />}
+      </div>
+
+      <ChairRow count={bottomChairs} />
+
+      <span
+        className="text-[10px] font-bold uppercase tracking-wider transition-colors"
+        style={{ color: selected ? tableColor : '#A8A29E' }}
+      >
+        T{table.table_number}
+      </span>
+    </div>
+  );
+}
+
+// ─── TableGrid ────────────────────────────────────────────────────────────────
+
+function TableGrid({
+  tables,
+  selectedId,
+  onSelect,
+  onPrintQr,
+  onDelete,
+}: {
+  tables:     (Table & { location_name: string; location_id: number })[];
+  selectedId: number | null;
+  onSelect:   (id: number | null) => void;
+  onPrintQr:  (id: number) => void;
+  onDelete:   (table: Table & { location_name: string }) => void;
+}) {
+  const selected = tables.find(t => t.table_id === selectedId) ?? null;
+  const occupied = tables.filter(t => t.active_session !== null).length;
+
+  return (
+    <div className="rounded-2xl overflow-hidden"
+      style={{ border: '1px solid #EDE8E3', backgroundColor: '#FFFBF7' }}>
+
+      {/* Floor header */}
+      <div className="flex items-center justify-between px-5 py-3"
+        style={{ borderBottom: '1px solid #EDE8E3', backgroundColor: '#FAF6F2' }}>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-[#78716C]">🏢</span>
+          <span className="text-xs font-bold text-[#1C1917]">Floor Plan</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {[
+            { color: '#16A34A', label: 'Available' },
+            { color: '#EC4824', label: 'Occupied'  },
+          ].map(s => (
+            <div key={s.label} className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+              <span className="text-[10px] font-bold text-[#A8A29E] uppercase tracking-wider">
+                {s.label}
+              </span>
+            </div>
+          ))}
+          <span className="text-[11px] font-semibold text-[#A8A29E]">
+            {occupied}/{tables.length} occupied
+          </span>
+        </div>
+      </div>
+
+      {/* Main area: grid + optional detail panel */}
+      <div className="flex">
+
+        {/* Table grid */}
+        <div
+          className="flex-1 p-6 overflow-auto"
+          style={{ backgroundColor: '#F5F0EC', minHeight: 320 }}
+          onClick={e => { if (e.target === e.currentTarget) onSelect(null); }}
+        >
+          {tables.length === 0 ? (
+            <div className="flex items-center justify-center h-48 text-[#A8A29E] text-sm">
+              No tables configured yet
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-6 justify-start">
+              {tables.map(table => (
+                <TableShape
+                  key={table.table_id}
+                  table={table}
+                  selected={selectedId === table.table_id}
+                  onSelect={() => onSelect(selectedId === table.table_id ? null : table.table_id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Detail panel */}
+        {selected && (
+          <div
+            className="w-64 flex-shrink-0 flex flex-col"
+            style={{ borderLeft: '1px solid #EDE8E3', backgroundColor: '#FFFBF7' }}
+          >
+            <div className="flex items-center justify-between px-4 py-3"
+              style={{ borderBottom: '1px solid #EDE8E3' }}>
+              <span className="font-bold text-sm text-[#1C1917]">
+                Table {selected.table_number}
+              </span>
+              <button
+                onClick={() => onSelect(null)}
+                className="text-[#A8A29E] hover:text-[#1C1917] text-lg leading-none transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="flex-1 p-4 space-y-3">
+              {/* Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#A8A29E] uppercase tracking-wider">
+                  Status
+                </span>
+                {selected.active_session ? (
+                  <span className="text-xs font-bold text-[#EC4824] bg-[#EC482415] px-2.5 py-1 rounded-full">
+                    Occupied
+                  </span>
+                ) : (
+                  <span className="text-xs font-bold text-[#16A34A] bg-[#16A34A15] px-2.5 py-1 rounded-full">
+                    Available
+                  </span>
+                )}
+              </div>
+
+              {/* Capacity */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#A8A29E] uppercase tracking-wider">
+                  Capacity
+                </span>
+                <span className="text-xs font-bold text-[#1C1917]">
+                  {selected.capacity} seats
+                </span>
+              </div>
+
+              {/* Token */}
+              <div>
+                <span className="text-xs font-bold text-[#A8A29E] uppercase tracking-wider block mb-1">
+                  Token
+                </span>
+                <span className="font-mono text-[11px] text-[#78716C] bg-[#F5EFE8] px-2 py-1 rounded block truncate">
+                  {(selected.stable_token ?? '').slice(0, 16) || '—'}
+                </span>
+              </div>
+
+              {/* Active session */}
+              {selected.active_session && (
+                <div className="rounded-xl p-3 space-y-1"
+                  style={{ backgroundColor: '#FEF3C7', border: '1px solid #FDE68A' }}>
+                  <p className="text-[10px] font-bold text-[#92400E] uppercase tracking-wider">
+                    Active Session
+                  </p>
+                  {selected.active_session.order_id && (
+                    <p className="text-sm font-bold text-[#78350F]">
+                      Order #{selected.active_session.order_id}
+                    </p>
+                  )}
+                  {selected.active_session.customer_name && (
+                    <p className="text-xs text-[#92400E]">
+                      {selected.active_session.customer_name}
+                    </p>
+                  )}
+                  {selected.active_session.amount !== undefined && (
+                    <p className="text-xs font-bold text-[#78350F]">
+                      GH₵{selected.active_session.amount}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="p-4 space-y-2" style={{ borderTop: '1px solid #EDE8E3' }}>
+              <button
+                onClick={() => onPrintQr(selected.table_id)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                style={{ backgroundColor: '#F5EFE8', color: '#78716C' }}
+              >
+                <HiQrCode size={14} /> Print QR Code
+              </button>
+              {!selected.active_session && (
+                <button
+                  onClick={() => {
+                    onDelete(selected);
+                    onSelect(null);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                  style={{ backgroundColor: '#FEF2F2', color: '#EF4444' }}
+                >
+                  <HiTrash size={14} /> Delete Table
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Tables() {
@@ -63,6 +350,9 @@ export default function Tables() {
   const [locations, setLocations] = useState<Location[]>([]);
 
   const [activeTab, setActiveTab] = useState<number | 'all'>('all');
+
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [selectedTable, setSelectedTable] = useState<number | null>(null);
 
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState<AddTableForm>({ location_id: '', table_number: '', capacity: '4' });
@@ -272,13 +562,36 @@ export default function Tables() {
             </p>
           )}
         </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 bg-[#EC4824] hover:bg-[#d4401f] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors"
-        >
-          <HiPlus size={18} />
-          Add Table
-        </button>
+        <div className="flex items-center gap-3">
+          {/* View toggle */}
+          <div
+            className="flex items-center gap-1 rounded-xl p-0.5"
+            style={{ backgroundColor: '#F5EFE8', border: '1px solid #EDE8E3' }}
+          >
+            {(['grid', 'list'] as ViewMode[]).map(mode => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={
+                  viewMode === mode
+                    ? { backgroundColor: '#EC4824', color: '#fff' }
+                    : { backgroundColor: 'transparent', color: '#A8A29E' }
+                }
+              >
+                {mode === 'grid' ? '⊞ Grid' : '☰ List'}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={openAdd}
+            className="flex items-center gap-2 bg-[#EC4824] hover:bg-[#d4401f] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors"
+          >
+            <HiPlus size={18} />
+            Add Table
+          </button>
+        </div>
       </div>
 
       {/* Location filter tabs */}
@@ -325,6 +638,14 @@ export default function Tables() {
               Add your first table
             </button>
           }
+        />
+      ) : viewMode === 'grid' ? (
+        <TableGrid
+          tables={allTables}
+          selectedId={selectedTable}
+          onSelect={setSelectedTable}
+          onPrintQr={handlePrintQr}
+          onDelete={setDeleteTarget}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
