@@ -1,4 +1,5 @@
-.PHONY: help dev dev-down staging staging-down prod prod-down build logs shell migrate seed
+.PHONY: help dev dev-down staging staging-down prod prod-down build logs shell migrate seed \
+        doctor doctor-fix doctor-ai composer-audit composer-outdated pnpm-audit check-versions
 
 COMPOSE_DEV     = docker compose -f docker-compose.yml
 COMPOSE_STAGING = docker compose -f docker-compose.yml -f docker-compose.staging.yml
@@ -51,3 +52,32 @@ migrate:
 
 seed:
 	$(COMPOSE_DEV) exec backend php artisan db:seed
+
+# ── Diagnostics ───────────────────────────────────────────────────────────────
+doctor:
+	@python3 scripts/doctor.py
+
+doctor-fix:
+	@python3 scripts/doctor.py --fix
+
+doctor-ai:
+	@python3 scripts/doctor.py --fix --ai
+
+# ── On-demand deeper checks ───────────────────────────────────────────────────
+composer-audit:
+	$(COMPOSE_DEV) exec backend composer audit
+
+composer-outdated:
+	$(COMPOSE_DEV) exec backend composer outdated
+
+pnpm-audit:
+	pnpm audit
+
+check-versions:
+	@echo "PHP:      $$($(COMPOSE_DEV) exec -T backend php -r 'echo PHP_VERSION;' 2>/dev/null)"
+	@echo "Composer: $$($(COMPOSE_DEV) exec -T backend composer --version 2>/dev/null | head -1)"
+	@echo "Node:     $$(node --version 2>/dev/null)"
+	@echo "pnpm:     $$(pnpm --version 2>/dev/null)"
+	@echo "Docker:   $$(docker version --format '{{.Server.Version}}' 2>/dev/null)"
+	@echo "MySQL:    $$($(COMPOSE_DEV) exec -T mysql mysql -uroot -p$$MYSQL_ROOT_PASSWORD \
+	              -e 'SELECT VERSION()' 2>/dev/null | tail -1)"
